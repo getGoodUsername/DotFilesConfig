@@ -128,10 +128,26 @@ ssh-add ~/.ssh/github
 export PATH="$PATH:$HOME/bin:$HOME/go/bin"
 export PS1="\[$(tput setaf 160)\][\[$(tput setaf 215)\]\u\[$(tput setaf 78)\]@\[$(tput setaf 63)\]HP800G2 \[$(tput setaf 169)\]\w\[$(tput setaf 160)\]]\[$(tput sgr0)\]$ "
 alias ll='ls -alFh' 
-alias mv='mv -i' # warns if move command will overwrite, add -f to force and not prompt
-alias gs='git status' # shortens git status to small 'gs'
+alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
+alias gs='git status'
 
 source /usr/share/doc/fzf/examples/key-bindings.bash # for all the cool fzf key bindings
+shopt -s nullglob # prevents an error in case a glob does not match to anything by 
+		  	# outputing nothing if nothing matches! https://unix.stackexchange.com/a/34012
+set -o noclobber  # does not allow to overwrite exisiting file with '>' output redirection unless
+			# unless specified with '>|'. Useful to avoid shooting yourself in the foot!
 
-shopt -s nullglob # prevents an error in case a glob does not match to anything by outputing nothing if nothing matches! https://unix.stackexchange.com/a/34012
+# the first test is so that will only output this block of text if not currently in a tmux session
+# do in paren group to avoid having ${tmuxls} var later in current bash script		  
+[[ -z "${TMUX}" ]] && (
+	tmuxls=$(tmux ls 2> /dev/null) 	# if no session running, tmux will output error
+						# this error will be sent to stderr and nothing
+						# will come out of stdout. And if there is a session
+						# running nothing usually will come from stderr
+						# and stdout will have something
+	echo ''; # just a new line						
+	[[ -n "${tmuxls}" ]] &&
+		echo -e "Currently running tmux session(s):\n${tmuxls}" ||
+		echo "No tmux session(s) running. Open one with: tmux [new -s <session name>]"
+)
 ####################################### EOF MY ADDED STUFF ##########################################
