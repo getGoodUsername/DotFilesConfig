@@ -127,7 +127,7 @@ ssh-add ~/.ssh/github
 
 export PATH="$PATH:$HOME/bin:$HOME/go/bin"
 export PS1="\[$(tput setaf 160)\][\[$(tput setaf 215)\]\u\[$(tput setaf 78)\]@\[$(tput setaf 63)\]HP800G2 \[$(tput setaf 169)\]\w\[$(tput setaf 160)\]]\[$(tput sgr0)\]$ "
-alias ll='ls -alFh' 
+alias ll='exa -alh' # exa is modern ls with more features. most helpfully colors!
 alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
 alias gs='git status'
 
