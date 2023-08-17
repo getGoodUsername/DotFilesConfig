@@ -132,6 +132,7 @@ alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to
 alias gs='git status'
 
 source /usr/share/doc/fzf/examples/key-bindings.bash # for all the cool fzf key bindings
+shopt -s globstar    # Allow ** for recursive matches ('lib/**/*.rb' => 'lib/a/b/c.rb')
 shopt -s nullglob # prevents an error in case a glob does not match to anything by 
 		  	# outputing nothing if nothing matches! https://unix.stackexchange.com/a/34012
 set -o noclobber  # does not allow to overwrite exisiting file with '>' output redirection unless
