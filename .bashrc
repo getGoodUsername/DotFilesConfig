@@ -130,6 +130,7 @@ export PS1="\[$(tput setaf 160)\][\[$(tput setaf 215)\]\u\[$(tput setaf 78)\]@\[
 alias ll='exa -alh' # exa is modern ls with more features. most helpfully colors!
 alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
 alias gs='git status'
+alias c='clear'
 
 source /usr/share/doc/fzf/examples/key-bindings.bash # for all the cool fzf key bindings
 shopt -s globstar    # Allow ** for recursive matches ('lib/**/*.rb' => 'lib/a/b/c.rb')
