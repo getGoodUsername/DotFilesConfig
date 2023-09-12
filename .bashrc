@@ -122,11 +122,40 @@ export NVM_DIR="$HOME/.nvm"
 
 
 ######################################### MY ADDED STUFF ############################################
+# in order to have a more "complex" PS1. https://stackoverflow.com/a/16715681/15054688
+function __prompt_command
+{
+	local exitCode="${?}"
+	local red="\[$(tput setaf 160)\]"
+	local orange="\[$(tput setaf 215)\]"
+	local brightGreen="\[$(tput setaf 78)\]"
+	local calmGreen="\[$(tput setaf 36)\]"
+	local purple="\[$(tput setaf 63)\]"
+	local pink="\[$(tput setaf 169)\]"
+	local defaultTextColor="\[$(tput sgr0)\]"
+	local errorOrange="\[$(tput setaf 202)\]"
+
+
+	PS1="${orange}\u${brightGreen}@${purple}HP800G2 ${pink}\w"
+
+	if [[ ${exitCode} -ne 0 ]]; then
+		# not only display error code in errorOrange
+		# but also ❯ will be the same color!
+		PS1+=" ${errorOrange}<${exitCode}>"
+	else
+		PS1+="${calmGreen}" # will make ❯ green
+	fi
+
+	PS1+="\n❯${defaultTextColor} "
+}
+# enables more complex PS1
+PROMPT_COMMAND=__prompt_command
+
+
 eval $(ssh-agent -s)
 ssh-add ~/.ssh/github
 
-export PATH="$PATH:$HOME/bin:$HOME/go/bin"
-export PS1="\[$(tput setaf 160)\][\[$(tput setaf 215)\]\u\[$(tput setaf 78)\]@\[$(tput setaf 63)\]HP800G2 \[$(tput setaf 169)\]\w\[$(tput setaf 160)\]]\[$(tput sgr0)\]$ "
+export PATH="$PATH:$HOME/bin:$HOME/go/bin:$HOME/.cargo/bin"
 alias ll='exa -alh' # exa is modern ls with more features. most helpfully colors!
 alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
 alias gs='git status'
