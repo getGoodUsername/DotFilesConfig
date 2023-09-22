@@ -137,13 +137,13 @@ function __prompt_command
 
 
 	PS1="${orange}\u${brightGreen}@${purple}HP800G2 ${pink}\w"
+	PS1+="${calmGreen}" # will make ❯ green by default
 
 	if [[ ${exitCode} -ne 0 ]]; then
 		# not only display error code in errorOrange
 		# but also ❯ will be the same color!
+		# will override default green color.
 		PS1+=" ${errorOrange}<${exitCode}>"
-	else
-		PS1+="${calmGreen}" # will make ❯ green
 	fi
 
 	PS1+="\n❯${defaultTextColor} "
@@ -156,7 +156,7 @@ eval $(ssh-agent -s)
 ssh-add ~/.ssh/github
 
 export PATH="$PATH:$HOME/bin:$HOME/go/bin:$HOME/.cargo/bin"
-alias ll='exa -alh' # exa is modern ls with more features. most helpfully colors!
+alias ll='exa -alh' # exa is modern ls with more features. most helpfully, it has pretty colors!
 alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
 alias gs='git status'
 alias c='clear'
