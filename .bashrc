@@ -156,12 +156,14 @@ eval $(ssh-agent -s)
 ssh-add ~/.ssh/github
 
 export PATH="$PATH:$HOME/bin:$HOME/go/bin:$HOME/.cargo/bin"
+export MANPAGER='less -R --mouse' # make default pager that man uses less with mouse support
 alias ll='exa -alh' # exa is modern ls with more features. most helpfully, it has pretty colors!
 alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
-alias less="less -R --mouse" # -R allows colors, --mouse allows scorlling with mouse wheel!
+alias less='less -R --mouse' # -R allows colors, --mouse allows scorlling with mouse wheel!
 alias gs='git status'
 alias c='clear'
 
+source ~/.bash.d/cht.sh # autocompletion for cht.sh
 source /usr/share/doc/fzf/examples/key-bindings.bash # for all the cool fzf key bindings
 shopt -s globstar    # Allow ** for recursive matches ('lib/**/*.rb' => 'lib/a/b/c.rb')
 shopt -s nullglob # prevents an error in case a glob does not match to anything by 
