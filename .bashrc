@@ -158,7 +158,7 @@ ssh-add ~/.ssh/github
 export PATH="$PATH:$HOME/bin:$HOME/go/bin:$HOME/.cargo/bin"
 export MANPAGER='less -R --mouse' # make default pager that man uses less with mouse support
 export EDITOR='vim' # make default editor for multiline command vim. use ctrl-x ctlr-e 
-export OG_TRACKER_DIR="${HOME}/Documents/TodoTracker"
+export OG_TRACKER_DIR="${HOME}/Documents/OgTracker"
 alias ll='exa -alh' # exa is modern ls with more features. most helpfully, it has pretty colors!
 alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
 alias less='less -R --mouse' # -R allows colors, --mouse allows scorlling with mouse wheel!
