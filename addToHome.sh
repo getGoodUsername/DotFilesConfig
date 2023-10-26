@@ -1,24 +1,33 @@
 #!/usr/bin/bash
 
-# this program creates a symbolic link to a new file in the home directory to the dotfiles in this dir
-# since the script should be in the dir of all the dotfiles
-	# dirname "$0" ensures that from wherever the script is ran, the right
-	# directory is chosen to source the dot files
-allDotfilesDir=$(dirname "$0")
+# script that links dotfiles to the correct location and the dotfiles
+# themselves are stored in the same folder. This allows me to avoid
+# hard coding the dir of where the dotfiles are and just let the
+# script figure out where we are
 
-# .[^.] matches a file name that stars with a dot (* won't match with files that start with a dot)
-	# and [^.] specifically matches to a file whose character is NOT a dot
-	# therefore the file name should start with a dot, but the next character MUST NOT be a dot
-	# and that is done to avoid having previous directory ".." show up
-for fullDotfileName in $allDotfilesDir/.[^.]* 
+# https://stackoverflow.com/a/4774063/15054688
+dotFilesStorageDir="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+
+for absolutePathToDotFile in "${dotFilesStorageDir}"/.[^.]*
 do
-	dotfile=$(basename $fullDotfileName)
+	dotFile="$(basename "${absolutePathToDotFile}")"
+	linkPathToDotFile="$HOME/${dotFile}"
 
-	if [[ $dotfile = '.git' ]]; then
-		echo skipped .git
+	if [[ "${dotFile}" = '.git' ]]; then
+		echo 'Skipped .git'
 		continue
 	fi
 
-	ln -s $fullDotfileName $HOME/$dotfile 
-	echo "Succesfully added $dotfile to $HOME!"
+	if [[ -L "${linkPathToDotFile}" ]]; then
+		echo "${dotFile} already linked! skipped."
+		continue
+	fi	
+
+	if [[ "${dotFile}" =~ \.swp$ ]]; then
+		echo "Skipping ${dotFile} vim temp file!"
+		continue
+	fi
+
+	ln -s "${absolutePathToDotFile}" "${linkPathToDotFile}"
+	echo "Added: ${dotFile}!"
 done
