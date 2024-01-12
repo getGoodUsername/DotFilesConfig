@@ -186,4 +186,10 @@ set -o noclobber  # does not allow to overwrite exisiting file with '>' output r
 		echo -e "Currently running tmux session(s):\n${tmuxls}" ||
 		echo "No tmux session(s) running. Open one with: tmux [new -s <session name>]"
 )
+
+[[ -n "$(ogtracker 2> /dev/null)" ]] && {
+	echo '---------------------------------------------------------------------'
+	echo 'Yet to track anything today! Make sure to add something to ogtracker!'
+	echo '---------------------------------------------------------------------'
+}
 ####################################### EOF MY ADDED STUFF ##########################################
