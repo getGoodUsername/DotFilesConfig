@@ -159,6 +159,7 @@ export PATH="$PATH:$HOME/bin:$HOME/go/bin:$HOME/.cargo/bin"
 export MANPAGER='less -R --mouse' # make default pager that man uses less with mouse support
 export EDITOR='vim' # make default editor for multiline command vim. use ctrl-x ctlr-e 
 export OG_TRACKER_DIR="${HOME}/Documents/OgTracker"
+export OG_CHORE_DIR="${HOME}/Documents/OgChore"
 alias ll='exa -alh' # exa is modern ls with more features. most helpfully, it has pretty colors!
 alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
 alias less='less -R --mouse' # -R allows colors, --mouse allows scorlling with mouse wheel!
@@ -174,20 +175,20 @@ set -o noclobber  # does not allow to overwrite exisiting file with '>' output r
 			# unless specified with '>|'. Useful to avoid shooting yourself in the foot!
 
 # the first test is so that will only output this block of text if not currently in a tmux session
-# do in paren group to avoid having ${tmuxls} var later in current bash script		  
+# do in paren group to avoid having ${tmuxls} var later in current bash script
 [[ -z "${TMUX}" ]] && (
-	tmuxls=$(tmux ls 2> /dev/null) 	# if no session running, tmux will output error
+	tmuxls="$(tmux ls 2> /dev/null)" 	# if no session running, tmux will output error
 						# this error will be sent to stderr and nothing
 						# will come out of stdout. And if there is a session
 						# running nothing usually will come from stderr
 						# and stdout will have something
-	echo ''; # just a new line						
+	echo ''; # just a new line
 	[[ -n "${tmuxls}" ]] &&
 		echo -e "Currently running tmux session(s):\n${tmuxls}" ||
 		echo "No tmux session(s) running. Open one with: tmux [new -s <session name>]"
 )
 
-[[ -n "$(ogtracker 2> /dev/null)" ]] && {
+[[ -z "$(ogtracker 2> /dev/null)" ]] && {
 	echo '---------------------------------------------------------------------'
 	echo 'Yet to track anything today! Make sure to add something to ogtracker!'
 	echo '---------------------------------------------------------------------'
