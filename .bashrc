@@ -136,7 +136,7 @@ function __prompt_command
 	local errorOrange="\[$(tput setaf 202)\]"
 
 
-	PS1="${orange}\u${brightGreen}@${purple}HP800G2 ${pink}\w"
+	PS1="${orange}\u${brightGreen}@${purple}\h ${pink}\w"
 	PS1+="${calmGreen}" # will make ❯ green by default
 
 	if [[ ${exitCode} -ne 0 ]]; then
