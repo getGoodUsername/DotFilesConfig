@@ -232,4 +232,5 @@ set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
 
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+true; # avoid exiting with non zero exit, [ -s $NVM... ] check results in false when no nvm bad for my other machines
 ####################################### EOF MY ADDED STUFF ##########################################
