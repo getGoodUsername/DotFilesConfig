@@ -161,6 +161,15 @@ function __get_new_path
 	printf "%s" "${finalPATH/#:/}"
 }
 
+# my other computers might have different setups,
+# make the git pull easy
+function __mygitpull__updateDotFile_keepChanges
+{
+	git stash
+	git pull
+	git stash pop
+}
+
 # enables more complex PS1
 PROMPT_COMMAND=__prompt_command
 
@@ -220,6 +229,7 @@ set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
 		echo "No tmux session(s) running. Open up one with: tmux [new -s <session name>]"
 )
 
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 ####################################### EOF MY ADDED STUFF ##########################################
