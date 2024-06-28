@@ -148,31 +148,78 @@ function __prompt_command
 
 	PS1+="\n❯${defaultTextColor} "
 }
+
+# automate adding path, only will output paths that are availabe w/o duplicates
+function __get_new_path
+{
+	# input: PIPED AS STDIN, multiline string, where each line defines a seperate path
+	# ex.
+	# __get_new_path << EOL
+	# ${HOME}/bin
+	# ${HOME}/.local/bin
+	# ${HOME}/go/bin
+	# ${HOME}/.cargo/bin
+	# EOL
+	#
+	# output: one single line string, each path joined with ':'
+	# ex.
+	# "/bin:/usr/bin:/sbin:/usr/sbin:${HOME}/bin"
+
+	finalPATH=''
+	while read -r pathDir;
+	do
+		if [[ -d "${pathDir}" ]]; then
+			finalPATH="${finalPATH}:${pathDir}"
+		else
+			printf '%s\n' "${pathDir} does not exist! Skipped when defining PATH" 1>&2
+		fi
+	done < <( { cat <&0; tr ':' '\n' <<< "${PATH}"; } | sort -u )
+
+	printf "%s" "${finalPATH/#:/}"
+}
+
 # enables more complex PS1
 PROMPT_COMMAND=__prompt_command
 
-
+#### SSH
 eval $(ssh-agent -s)
-ssh-add ~/.ssh/github
+for publicKey in ~/.ssh/*.pub
+do
+	privateKey="${publicKey/.pub/}"
+	ssh-add "${privateKey}"
+done
+#### EOF SSH
 
-export PATH="$PATH:$HOME/bin:$HOME/go/bin:$HOME/.cargo/bin"
+#### ENV VARS
+# add paths here with new line for new path
+export PATH="$(__get_new_path << EOL
+${HOME}/bin
+${HOME}/.local/bin
+${HOME}/go/bin
+${HOME}/.cargo/bin
+EOL
+)"
 export MANPAGER='less -R --mouse' # make default pager that man uses less with mouse support
-export EDITOR='vim' # make default editor for multiline command vim. use ctrl-x ctlr-e 
+export EDITOR='vim' # make default editor for multiline command vim. use ctrl-x ctlr-e
 export OG_TRACKER_DIR="${HOME}/Documents/OgTracker"
 export OG_CHORE_DIR="${HOME}/Documents/OgChore"
-alias ll='exa -alh' # exa is modern ls with more features. most helpfully, it has pretty colors!
+#### EOF ENV VARS
+
+#### ALIAS
+alias ll='exa -alh --group-directories-first' # exa is modern ls with more features. most helpfully, it has pretty colors!
 alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
 alias less='less -R --mouse' # -R allows colors, --mouse allows scorlling with mouse wheel!
 alias gs='git status'
 alias c='clear'
+#### EOF ALIAS
 
+#### SHELL OPTIONS
 source ~/.bash.d/cht.sh # autocompletion for cht.sh
 source /usr/share/doc/fzf/examples/key-bindings.bash # for all the cool fzf key bindings
 shopt -s globstar    # Allow ** for recursive matches ('lib/**/*.rb' => 'lib/a/b/c.rb')
-shopt -s nullglob # prevents an error in case a glob does not match to anything by 
-		  	# outputing nothing if nothing matches! https://unix.stackexchange.com/a/34012
-set -o noclobber  # does not allow to overwrite exisiting file with '>' output redirection unless
-			# unless specified with '>|'. Useful to avoid shooting yourself in the foot!
+shopt -s nullglob # output null when no match with glob https://unix.stackexchange.com/a/34012
+set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
+#### EOF SHELL OPTIONS
 
 # the first test is so that will only output this block of text if not currently in a tmux session
 # do in paren group to avoid having ${tmuxls} var later in current bash script
@@ -180,17 +227,11 @@ set -o noclobber  # does not allow to overwrite exisiting file with '>' output r
 	tmuxls="$(tmux ls 2> /dev/null)" 	# if no session running, tmux will output error
 						# this error will be sent to stderr and nothing
 						# will come out of stdout. And if there is a session
-						# running nothing usually will come from stderr
+						# running, nothing usually will come from stderr
 						# and stdout will have something
 	echo ''; # just a new line
 	[[ -n "${tmuxls}" ]] &&
 		echo -e "Currently running tmux session(s):\n${tmuxls}" ||
-		echo "No tmux session(s) running. Open one with: tmux [new -s <session name>]"
+		echo "No tmux session(s) running. Open up one with: tmux [new -s <session name>]"
 )
-
-[[ -z "$(ogtracker 2> /dev/null)" ]] && {
-	echo '---------------------------------------------------------------------'
-	echo 'Yet to track anything today! Make sure to add something to ogtracker!'
-	echo '---------------------------------------------------------------------'
-}
 ####################################### EOF MY ADDED STUFF ##########################################
