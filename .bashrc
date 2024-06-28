@@ -168,7 +168,7 @@ PROMPT_COMMAND=__prompt_command
 eval $(ssh-agent -s)
 for publicKey in ~/.ssh/*.pub
 do
-	privateKey="${publicKey/.pub/}"
+	privateKey="${publicKey/%.pub/}"
 	ssh-add "${privateKey}"
 done
 #### EOF SSH
