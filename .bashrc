@@ -85,24 +85,12 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # colored GCC warnings and errors
-#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
-# some more ls aliases
-alias la='ls -A'
-alias l='ls -CF'
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
@@ -114,11 +102,6 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
 
 
 ######################################### MY ADDED STUFF ############################################
@@ -197,6 +180,7 @@ ${HOME}/bin
 ${HOME}/.local/bin
 ${HOME}/go/bin
 ${HOME}/.cargo/bin
+$HOME/.nvm
 EOL
 )"
 export MANPAGER='less -R --mouse' # make default pager that man uses less with mouse support
@@ -206,6 +190,7 @@ export OG_CHORE_DIR="${HOME}/Documents/OgChore"
 #### EOF ENV VARS
 
 #### ALIAS
+alias l='ls -lA'
 alias ll='exa -alh --group-directories-first' # exa is modern ls with more features. most helpfully, it has pretty colors!
 alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
 alias less='less -R --mouse' # -R allows colors, --mouse allows scorlling with mouse wheel!
@@ -234,4 +219,7 @@ set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
 		echo -e "Currently running tmux session(s):\n${tmuxls}" ||
 		echo "No tmux session(s) running. Open up one with: tmux [new -s <session name>]"
 )
+
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 ####################################### EOF MY ADDED STUFF ##########################################
