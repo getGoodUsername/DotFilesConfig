@@ -201,9 +201,9 @@ EOL
 export MANPAGER='less -R --mouse' # make default pager that man uses less with mouse support
 export EDITOR='vim' # make default editor for multiline command vim. use ctrl-x ctlr-e
 # conditionaly export only if executable exists (these lines must always be put after defining PATH)
-type -f ogupdate &>/dev/null && export OG_UPDATE_DIR="${HOME}/.og.d/Update"
-type -f ogtracker &>/dev/null && export OG_TRACKER_DIR="${HOME}/.og.d/Tracker"
-type -f ogchore &>/dev/null && export OG_CHORE_DIR="${HOME}/.og.d/Chore"
+type ogupdate &>/dev/null && export OG_UPDATE_DIR="${HOME}/.og.d/Update"
+type ogtracker &>/dev/null && export OG_TRACKER_DIR="${HOME}/.og.d/Tracker"
+type ogchore &>/dev/null && export OG_CHORE_DIR="${HOME}/.og.d/Chore"
 #### EOF ENV VARS
 
 #### ALIAS
@@ -242,5 +242,6 @@ set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
 	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 } || true; # avoid exiting with non zero exit when nvm doesn't exist
 
-type -f ogautoupdate &>/dev/null && ogupdate || true
+type ogupdate &>/dev/null && ogupdate || true
+type zoxide &>/dev/null && source <(zoxide init bash --cmd cd --hook prompt --no-cmd)
 ####################################### EOF MY ADDED STUFF ##########################################
