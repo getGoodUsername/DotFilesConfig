@@ -16,16 +16,12 @@ HISTCONTROL='ignoreboth:erasedups'
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=65536
-HISTFILESIZE=131072
+HISTSIZE=$(( 2 ** 16 ))
+HISTFILESIZE=$(( HISTSIZE * 2 ))
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
-
-# If set, the pattern "**" used in a pathname expansion context will
-# match all files and zero or more directories and subdirectories.
-#shopt -s globstar
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -129,6 +125,7 @@ function __prompt_command
 	fi
 
 	PS1+="\n❯${defaultTextColor} "
+
 	# sync history between shells: https://unix.stackexchange.com/a/131507
 	history -a
 	history -n
@@ -216,9 +213,15 @@ alias c='clear'
 #### EOF ALIAS
 
 #### SHELL OPTIONS
-source "${HOME}/.bash.d/cht.sh" # autocompletion for cht.sh
-source /usr/share/doc/fzf/examples/key-bindings.bash # for all the cool fzf key bindings
-shopt -s globstar    # Allow ** for recursive matches ('lib/**/*.rb' => 'lib/a/b/c.rb')
+[[ -e "${HOME}/.bash.d/cht.sh" ]] && source "${HOME}/.bash.d/cht.sh" # autocompletion for cht.sh
+if [[ -e /usr/share/doc/fzf/examples/key-bindings.bash ]]; then # for all the cool fzf key bindings
+	if type zoxide &>/dev/null; then # zoxide doesn't handle -- like cd (dont think it has options like cd) and will error out if -- is present
+		source <(sed $'s/printf \'cd -- %q\' "$dir"/printf \'__zoxide_z %q\' "$dir"/' /usr/share/doc/fzf/examples/key-bindings.bash)
+	else
+		source /usr/share/doc/fzf/examples/key-bindings.bash
+	fi
+fi
+shopt -s globstar # Allow ** for recursive matches ('lib/**/*.rb' => 'lib/a/b/c.rb')
 shopt -s nullglob # output null when no match with glob https://unix.stackexchange.com/a/34012
 set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
 #### EOF SHELL OPTIONS
@@ -226,7 +229,7 @@ set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
 # the first test is so that will only output this block of text if not currently in a tmux session
 # do in paren group to avoid having ${tmuxls} var later in current bash script
 [[ -z "${TMUX}" ]] && (
-	tmuxls="$(tmux ls 2> /dev/null)" 	# if no session running, tmux will output error
+	tmuxls="$(tmux ls 2> /dev/null)" # if no session running, tmux will output error
 						# this error will be sent to stderr and nothing
 						# will come out of stdout. And if there is a session
 						# running, nothing usually will come from stderr
@@ -235,13 +238,10 @@ set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
 	[[ -n "${tmuxls}" ]] &&
 		echo -e "Currently running tmux session(s):\n${tmuxls}" ||
 		echo "No tmux session(s) running. Open up one with: tmux [new -s <session name>]"
-) || true # avoid exiting with non zero exit when in tmux session
+)
 
-{
-	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
-} || true; # avoid exiting with non zero exit when nvm doesn't exist
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 
-type ogupdate &>/dev/null && ogupdate || true
-type zoxide &>/dev/null && source <(zoxide init bash --cmd cd --hook prompt)
+type zoxide &>/dev/null && source <(zoxide init bash --cmd cd --hook prompt) || true
 ####################################### EOF MY ADDED STUFF ##########################################
