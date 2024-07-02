@@ -216,7 +216,7 @@ alias c='clear'
 #### EOF ALIAS
 
 #### SHELL OPTIONS
-source ~/.bash.d/cht.sh # autocompletion for cht.sh
+source "${HOME}/.bash.d/cht.sh" # autocompletion for cht.sh
 source /usr/share/doc/fzf/examples/key-bindings.bash # for all the cool fzf key bindings
 shopt -s globstar    # Allow ** for recursive matches ('lib/**/*.rb' => 'lib/a/b/c.rb')
 shopt -s nullglob # output null when no match with glob https://unix.stackexchange.com/a/34012
@@ -242,5 +242,5 @@ set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
 	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 } || true; # avoid exiting with non zero exit when nvm doesn't exist
 
-type -f ogautoupdate &>/dev/null && ogupdate
+type -f ogautoupdate &>/dev/null && ogupdate || true
 ####################################### EOF MY ADDED STUFF ##########################################
