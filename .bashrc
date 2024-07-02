@@ -10,14 +10,14 @@ esac
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
-HISTCONTROL=ignoreboth
+HISTCONTROL='ignoreboth:erasedups'
 
 # append to the history file, don't overwrite it
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=65536
+HISTFILESIZE=131072
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -109,14 +109,13 @@ fi
 function __prompt_command
 {
 	local exitCode="${?}"
-	local red="\[$(tput setaf 160)\]"
-	local orange="\[$(tput setaf 215)\]"
-	local brightGreen="\[$(tput setaf 78)\]"
-	local calmGreen="\[$(tput setaf 36)\]"
-	local purple="\[$(tput setaf 63)\]"
-	local pink="\[$(tput setaf 169)\]"
-	local defaultTextColor="\[$(tput sgr0)\]"
-	local errorOrange="\[$(tput setaf 202)\]"
+	local -r orange="\[$(tput setaf 215)\]"
+	local -r brightGreen="\[$(tput setaf 78)\]"
+	local -r calmGreen="\[$(tput setaf 36)\]"
+	local -r purple="\[$(tput setaf 63)\]"
+	local -r pink="\[$(tput setaf 169)\]"
+	local -r defaultTextColor="\[$(tput sgr0)\]"
+	local -r errorOrange="\[$(tput setaf 202)\]"
 
 
 	PS1="${orange}\u${brightGreen}@${purple}\h ${pink}\w"
@@ -130,6 +129,9 @@ function __prompt_command
 	fi
 
 	PS1+="\n❯${defaultTextColor} "
+	# sync history between shells: https://unix.stackexchange.com/a/131507
+	history -a
+	history -n
 }
 
 # automate adding path, only will output paths that are availabe w/o duplicates
@@ -163,18 +165,22 @@ function __get_new_path
 
 # my other computers might have different setups,
 # make the git pull easy
-function __mygitpull__updateDotFile_keepChanges
+function __mygitpull_keepLocalChanges
 {
 	git stash
 	git pull
 	git stash pop
 }
 
+#### DEFAULT HOME SETUP
+mkdir -p "${HOME}/.og.d" # where persistent misc data from my scripts go
+#### EOF DEFUALT HOME SETUP
+
 # enables more complex PS1
 PROMPT_COMMAND=__prompt_command
 
 #### SSH
-eval $(ssh-agent -s)
+eval "$(ssh-agent -s)"
 for publicKey in ~/.ssh/*.pub
 do
 	privateKey="${publicKey/%.pub/}"
@@ -194,15 +200,17 @@ EOL
 )"
 export MANPAGER='less -R --mouse' # make default pager that man uses less with mouse support
 export EDITOR='vim' # make default editor for multiline command vim. use ctrl-x ctlr-e
-export OG_TRACKER_DIR="${HOME}/Documents/OgTracker"
-export OG_CHORE_DIR="${HOME}/Documents/OgChore"
+# conditionaly export only if executable exists (these lines must always be put after defining PATH)
+type -f ogupdate &>/dev/null && export OG_UPDATE_DIR="${HOME}/.og.d/Update"
+type -f ogtracker &>/dev/null && export OG_TRACKER_DIR="${HOME}/.og.d/Tracker"
+type -f ogchore &>/dev/null && export OG_CHORE_DIR="${HOME}/.og.d/Chore"
 #### EOF ENV VARS
 
 #### ALIAS
 alias l='ls -lA'
 alias ll='exa -alh --group-directories-first' # exa is modern ls with more features. most helpfully, it has pretty colors!
 alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
-alias less='less -R --mouse' # -R allows colors, --mouse allows scorlling with mouse wheel!
+alias less='less -R --mouse -i' # -R allows colors, -i lower case matches uppercase, uppercase still only matches uppercase
 alias gs='git status'
 alias c='clear'
 #### EOF ALIAS
@@ -227,10 +235,12 @@ set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
 	[[ -n "${tmuxls}" ]] &&
 		echo -e "Currently running tmux session(s):\n${tmuxls}" ||
 		echo "No tmux session(s) running. Open up one with: tmux [new -s <session name>]"
-)
+) || true # avoid exiting with non zero exit when in tmux session
 
+{
+	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+} || true; # avoid exiting with non zero exit when nvm doesn't exist
 
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
-true; # avoid exiting with non zero exit, [ -s $NVM... ] check results in false when no nvm bad for my other machines
+type -f ogautoupdate &>/dev/null && ogupdate
 ####################################### EOF MY ADDED STUFF ##########################################
