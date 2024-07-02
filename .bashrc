@@ -243,5 +243,5 @@ set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
 } || true; # avoid exiting with non zero exit when nvm doesn't exist
 
 type ogupdate &>/dev/null && ogupdate || true
-type zoxide &>/dev/null && source <(zoxide init bash --cmd cd --hook prompt --no-cmd)
+type zoxide &>/dev/null && source <(zoxide init bash --cmd cd --hook prompt)
 ####################################### EOF MY ADDED STUFF ##########################################
