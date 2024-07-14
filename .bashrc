@@ -201,6 +201,7 @@ export EDITOR='vim' # make default editor for multiline command vim. use ctrl-x 
 type ogupdate &>/dev/null && export OG_UPDATE_DIR="${HOME}/.og.d/Update"
 type ogtracker &>/dev/null && export OG_TRACKER_DIR="${HOME}/.og.d/Tracker"
 type ogchore &>/dev/null && export OG_CHORE_DIR="${HOME}/.og.d/Chore"
+type ogdim &>/dev/null && export OG_DIM_DIR="${HOME}/.og.d/Dim"
 #### EOF ENV VARS
 
 #### ALIAS
