@@ -169,20 +169,41 @@ function __mygitpull_keepLocalChanges
 	git stash pop
 }
 
+function __og_launch_ssh_agent
+{
+	# source/inspo: https://stackoverflow.com/a/38619604
+	local -r ssh_agent_auth_sock="${HOME}/.ssh/og_ssh_auth_sock"
+	if [ ! -S "$ssh_agent_auth_sock" ]; then # yet to launch my ssh-agent
+		eval "$(ssh-agent -s -a "$ssh_agent_auth_sock")" # will export SSH_AUTH_SOCK="$ssh_agent_auth_sock"
+
+		# side note: just incase you forget, the socket will be deleted when that ssh-agent process is killed
+		#		and if you delete the file, the socket will still be out there within the OS, but not accesible
+		# 		any more, and will have to run a new ssh-agent
+		# Also: find process with: pgrep -af "ssh-agent -s -a $ssh_agent_auth_sock"
+	fi
+	# my ssh-agent is already running and communicating through ssh_agent_auth_sock socket
+
+	# SSH_AUTH_SOCK is important env var, tells programs where to communicate with ssh-agent, including ssh-add
+	export SSH_AUTH_SOCK="$ssh_agent_auth_sock" # don't want to spawn a new ssh-agent, therefore have to do this explicitily
+
+	# ssh-add -l displays loaded keys, if no keys loaded, exit code non zero
+	# add all keys if no keys are in ssh-agent or the number of keys in ssh-agent doesn't match the number of keys we have
+	if { ! ssh-add -l &> /dev/null; } || [[ "$(ssh-add -l | wc -l)" -ne "$(printf '%s\n' ~/.ssh/*.pub | wc -l)" ]];  then
+		ssh-add -Dq # delete all keys for ssh-agent in case when a key pair has been deleted, just reset!
+		printf '%s\n' ~/.ssh/*.pub | sed -E 's/(.+)\.pub$/\1/' | xargs ssh-add
+	fi
+}
+
 #### DEFAULT HOME SETUP
 mkdir -p "${HOME}/.og.d" # where persistent misc data from my scripts go
 #### EOF DEFUALT HOME SETUP
 
-# enables more complex PS1
+#### COMPLEX PS1 SETUP
 PROMPT_COMMAND=__prompt_command
+#### EOF COMPLEX PS1 SETUP
 
 #### SSH
-eval "$(ssh-agent -s)"
-for publicKey in ~/.ssh/*.pub
-do
-	privateKey="${publicKey/%.pub/}"
-	ssh-add "${privateKey}"
-done
+__og_launch_ssh_agent
 #### EOF SSH
 
 #### ENV VARS
@@ -192,7 +213,7 @@ ${HOME}/bin
 ${HOME}/.local/bin
 ${HOME}/go/bin
 ${HOME}/.cargo/bin
-$HOME/.nvm
+${HOME}/.nvm
 EOL
 )"
 export MANPAGER='less -R --mouse -i --use-color' # make default pager that man uses less with mouse support
