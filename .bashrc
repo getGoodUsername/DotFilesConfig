@@ -171,6 +171,9 @@ function __mygitpull_keepLocalChanges
 
 function __og_launch_ssh_agent
 {
+	# if erroring out, sometimes during reboot/shutdown, socket won't close (idk why)
+	# just delete the socket and source .bashrc, everything should be fine.
+
 	# source/inspo: https://stackoverflow.com/a/38619604
 	local -r ssh_agent_auth_sock="${HOME}/.ssh/og_ssh_auth_sock"
 	if [ ! -S "$ssh_agent_auth_sock" ]; then # yet to launch my ssh-agent
