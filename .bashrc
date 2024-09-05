@@ -208,6 +208,7 @@ type ogdim &>/dev/null && export OG_DIM_DIR="${HOME}/.og.d/Dim"
 alias l='ls -lA'
 alias ll='exa -alh --group-directories-first' # exa is modern ls with more features. most helpfully, it has pretty colors!
 alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
+alias cp='cp -i' # same as mv -i
 alias less='less -R --mouse -i --use-color' # -R allows colors from input escapr chars, -i lower case matches uppercase, uppercase still only matches uppercase, --use-color enables color usage for helpful highlighting in less
 alias gs='git status'
 alias c='clear'
