@@ -248,22 +248,9 @@ shopt -s nullglob # output null when no match with glob https://unix.stackexchan
 set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
 #### EOF SHELL OPTIONS
 
-# the first test is so that will only output this block of text if not currently in a tmux session
-# do in paren group to avoid having ${tmuxls} var later in current bash script
-[[ -z "${TMUX}" ]] && (
-	tmuxls="$(tmux ls 2> /dev/null)" # if no session running, tmux will output error
-						# this error will be sent to stderr and nothing
-						# will come out of stdout. And if there is a session
-						# running, nothing usually will come from stderr
-						# and stdout will have something
-	echo ''; # just a new line
-	[[ -n "${tmuxls}" ]] &&
-		echo -e "Currently running tmux session(s):\n${tmuxls}" ||
-		echo "No tmux session(s) running. Open up one with: tmux [new -s <session name>]"
-)
-
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 
-type zoxide &>/dev/null && source <(zoxide init bash --cmd cd --hook prompt) || true
+type zoxide &>/dev/null && source <(zoxide init bash --cmd cd --hook prompt)
+true # this ensures exit code at start of shell will always be 0
 ####################################### EOF MY ADDED STUFF ##########################################
