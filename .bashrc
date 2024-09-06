@@ -185,11 +185,12 @@ function __og_launch_ssh_agent
 	export SSH_AUTH_SOCK="$ssh_agent_auth_sock" 
 
 	local -r loaded_in_ssh_agent_keys_count="$(ssh-add -l 2> /dev/null | wc -l)"
-	local -r available_keys="$(printf '%s\n' ~/.ssh/*.pub)"
-	local -r available_keys_count="$(echo -n "$available_keys" | wc -l)"
+	local -r available_keys_count="$(printf '%s\n' ~/.ssh/*.pub | wc -l)"
 	if [[ "$loaded_in_ssh_agent_keys_count" -ne "$available_keys_count" ]];  then
-		ssh-add -Dq # delete all keys for ssh-agent in case when a key pair has been deleted, just reset!
-		echo -n "$available_keys" | sed -E 's/(.+)\.pub$/\1/' | xargs ssh-add
+		# delete all keys for ssh-agent in case when a key pair has
+		#	been deleted, it is also reflected in the ssh-agent
+		ssh-add -Dq 
+		printf '%s\n' ~/.ssh/*.pub | sed -E 's/(.+)\.pub$/\1/' | xargs ssh-add
 	fi
 }
 
