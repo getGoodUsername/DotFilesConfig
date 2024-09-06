@@ -171,29 +171,25 @@ function __mygitpull_keepLocalChanges
 
 function __og_launch_ssh_agent
 {
-	# if erroring out, sometimes during reboot/shutdown, socket won't close (idk why)
-	# just delete the socket and source .bashrc, everything should be fine.
-
 	# source/inspo: https://stackoverflow.com/a/38619604
-	local -r ssh_agent_auth_sock="${HOME}/.ssh/og_ssh_auth_sock"
-	if [ ! -S "$ssh_agent_auth_sock" ]; then # yet to launch my ssh-agent
-		eval "$(ssh-agent -s -a "$ssh_agent_auth_sock")" # will export SSH_AUTH_SOCK="$ssh_agent_auth_sock"
-
-		# side note: just incase you forget, the socket will be deleted when that ssh-agent process is killed
-		#		and if you delete the file, the socket will still be out there within the OS, but not accesible
-		# 		any more, and will have to run a new ssh-agent
-		# Also: find process with: pgrep -af "ssh-agent -s -a $ssh_agent_auth_sock"
+	local -r ssh_agent_auth_sock="${HOME}/.ssh/sshAgent_socket"
+	if [ ! -S "$ssh_agent_auth_sock" ]; then
+		eval "$(ssh-agent -s)" # will export SSH_AUTH_SOCK 
+		ln -sf "$SSH_AUTH_SOCK" "$ssh_agent_auth_sock"
 	fi
-	# my ssh-agent is already running and communicating through ssh_agent_auth_sock socket
+	# my ssh-agent is already running and communicating
+	# 	through ssh_agent_auth_sock socket
 
-	# SSH_AUTH_SOCK is important env var, tells programs where to communicate with ssh-agent, including ssh-add
-	export SSH_AUTH_SOCK="$ssh_agent_auth_sock" # don't want to spawn a new ssh-agent, therefore have to do this explicitily
+	# SSH_AUTH_SOCK is important env var, tells programs
+	#	where to communicate with ssh-agent, including ssh-add
+	export SSH_AUTH_SOCK="$ssh_agent_auth_sock" 
 
-	# ssh-add -l displays loaded keys, if no keys loaded, exit code non zero
-	# add all keys if no keys are in ssh-agent or the number of keys in ssh-agent doesn't match the number of keys we have
-	if { ! ssh-add -l &> /dev/null; } || [[ "$(ssh-add -l | wc -l)" -ne "$(printf '%s\n' ~/.ssh/*.pub | wc -l)" ]];  then
+	local -r loaded_in_ssh_agent_keys_count="$(ssh-add -l 2> /dev/null | wc -l)"
+	local -r available_keys="$(printf '%s\n' ~/.ssh/*.pub)"
+	local -r available_keys_count="$(echo -n "$available_keys" | wc -l)"
+	if [[ "$loaded_in_ssh_agent_keys_count" -ne "$available_keys_count" ]];  then
 		ssh-add -Dq # delete all keys for ssh-agent in case when a key pair has been deleted, just reset!
-		printf '%s\n' ~/.ssh/*.pub | sed -E 's/(.+)\.pub$/\1/' | xargs ssh-add
+		echo -n "$available_keys" | sed -E 's/(.+)\.pub$/\1/' | xargs ssh-add
 	fi
 }
 
