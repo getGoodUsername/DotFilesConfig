@@ -171,7 +171,6 @@ function __mygitpull_keepLocalChanges
 
 function __og_launch_ssh_agent
 {
-	set -x
 	# source/inspo: https://stackoverflow.com/a/38619604
 	local -r ssh_agent_auth_sock="${HOME}/.ssh/sshAgent_socket"
 	if [ ! -S "$ssh_agent_auth_sock" ]; then
@@ -200,7 +199,6 @@ function __og_launch_ssh_agent
 		ssh-add -Dq 
 		printf '%s\n' ~/.ssh/*.pub | sed -E 's/(.+)\.pub$/\1/' | xargs ssh-add
 	fi
-	set +x
 }
 
 #### DEFAULT HOME SETUP
