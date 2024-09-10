@@ -193,7 +193,7 @@ function __og_launch_ssh_agent
 	# the agent has no keys. It will exit with a non zero exit code
 	# which I check in the if condition to act as a final fail safe
 
-	if [[ "$loaded_in_ssh_agent_keys_count" -ne "$available_keys_count" ]] || ! ssh-add -l;  then
+	if [[ "$loaded_in_ssh_agent_keys_count" -ne "$available_keys_count" ]] || { ! ssh-add -l &> /dev/null; }; then
 		# delete all keys for ssh-agent in case when a key pair has
 		#	been deleted, it is also reflected in the ssh-agent
 		ssh-add -Dq 
