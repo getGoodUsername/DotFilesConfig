@@ -223,7 +223,9 @@ ${HOME}/.cargo/bin
 ${HOME}/.nvm
 EOL
 )"
-export MANPAGER='less -R --mouse -i --use-color' # make default pager that man uses less with mouse support
+export PAGER='less -R --mouse -i --use-color' # -R allows colors from input escapr chars, -i lower case matches uppercase, uppercase still only matches uppercase, --use-color enables color usage for helpful highlighting in less
+export MANPAGER="$PAGER"
+export BAT_PAGER="$PAGER"
 export EDITOR='vim' # make default editor for multiline command vim. use ctrl-x ctlr-e
 # conditionaly export only if executable exists (these lines must always be put after defining PATH)
 type ogupdate &>/dev/null && export OG_UPDATE_DIR="${HOME}/.og.d/Update"
@@ -243,7 +245,7 @@ alias ll='lsd \
 --date "+%b %d  %H:%M"' # lsd is ls but pretty
 alias mv='mv -i' # warns if move command will overwrite, add -f when using mv to force and not prompt
 alias cp='cp -i' # same as mv -i
-alias less='less -R --mouse -i --use-color' # -R allows colors from input escapr chars, -i lower case matches uppercase, uppercase still only matches uppercase, --use-color enables color usage for helpful highlighting in less
+alias less="$PAGER" 
 alias gs='git status'
 alias c='clear'
 #### EOF ALIAS
