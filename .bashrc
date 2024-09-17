@@ -201,6 +201,18 @@ function __og_launch_ssh_agent
 	fi
 }
 
+function __og_is_nvm_installed
+{
+	local -r nvm_dir="${1:-"${HOME}/.nvm"}"
+	# dir exists, contains nvm.sh, a file with data being stored in it and
+	# 	also an executable, and the dir also holds at least 10 files (heurisitc)
+	[ -d "${nvm_dir}" ] \
+		&& [ -s "${nvm_dir}/nvm.sh" ] \
+		&& [ -x "${nvm_dir}/nvm.sh" ] \
+		&& [ "$(ls -A1 "${nvm_dir}" | wc -l)" -ge 10 ]
+		
+}
+
 #### DEFAULT HOME SETUP
 mkdir -p "${HOME}/.og.d" # where persistent misc data from my scripts go
 #### EOF DEFUALT HOME SETUP
@@ -264,8 +276,13 @@ shopt -s nullglob # output null when no match with glob https://unix.stackexchan
 set -o noclobber  # overwriting of file only allowed with >|, cant use just '>'
 #### EOF SHELL OPTIONS
 
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+if __og_is_nvm_installed; then
+{
+	export NVM_DIR="${HOME}/.nvm"
+	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use # This loads nvm
+	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+}
+fi
 
 type zoxide &>/dev/null && source <(zoxide init bash --cmd cd --hook prompt)
 true # this ensures exit code at start of shell will always be 0
