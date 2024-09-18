@@ -286,6 +286,9 @@ if __og_is_nvm_installed; then
 }
 fi
 
+# ripgrep, faster default recursive grep
+type rg &>/dev/null && source <(rg --generate=complete-bash)
+
 type zoxide &>/dev/null && source <(zoxide init bash --cmd cd --hook prompt)
 true # this ensures exit code at start of shell will always be 0
 ####################################### EOF MY ADDED STUFF ##########################################
