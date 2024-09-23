@@ -229,7 +229,6 @@ __og_launch_ssh_agent
 # add paths here with new line for new path
 export PATH="$(__get_new_path << EOL
 ${HOME}/bin
-${HOME}/.local/bin
 ${HOME}/go/bin
 ${HOME}/.cargo/bin
 ${HOME}/.nvm
