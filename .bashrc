@@ -160,15 +160,6 @@ function __get_new_path
 	printf "%s" "${finalPATH/#:/}"
 }
 
-# my other computers might have different setups,
-# make the git pull easy
-function __mygitpull_keepLocalChanges
-{
-	git stash
-	git pull
-	git stash pop
-}
-
 function __og_launch_ssh_agent
 {
 	# source/inspo: https://stackoverflow.com/a/38619604
