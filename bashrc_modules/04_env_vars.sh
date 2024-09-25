@@ -20,7 +20,7 @@ function __set_env_vars_make_path_env_format_str
 		if [[ -d "${pathDir}" ]]; then
 			finalPATH="${finalPATH}:${pathDir}"
 		fi
-	done < <(cat <&0 | sort -u)
+	done <&0
 
 	printf "%s" "${finalPATH/#:/}"
 }
@@ -28,9 +28,9 @@ function __set_env_vars_make_path_env_format_str
 # I WILL BE IGNORING ANY DEFAULTS, AND JUST USING MY PREFERRED DEFAULTS
 export PATH;
 PATH="$(__set_env_vars_make_path_env_format_str << EOF
-"${HOME}/bin"
-"${HOME}/.cargo/bin"
-"${HOME}/go/bin"
+${HOME}/bin
+${HOME}/.cargo/bin
+${HOME}/go/bin
 /bin
 /usr/bin
 /usr/local/bin

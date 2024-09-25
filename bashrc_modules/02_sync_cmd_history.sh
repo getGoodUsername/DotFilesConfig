@@ -18,4 +18,8 @@ function __sync_cmd_history_between_multiple_shells
 	return "${exitCode}" # do this so exit code from previous process doesn't get mangled
 }
 
+# if stuff already in prompt command, demarcate with ; unless already ending with ;
+if [[ -n "${PROMPT_COMMAND}" ]] && grep -vq ';[[:space:]]*$' <<< "${PROMPT_COMMAND}"; then
+	PROMPT_COMMAND+=';';
+fi
 PROMPT_COMMAND+='__sync_cmd_history_between_multiple_shells;'

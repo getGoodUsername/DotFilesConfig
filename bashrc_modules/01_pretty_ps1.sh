@@ -45,4 +45,8 @@ function __pretty_ps1_prompt_command
 	return "${exitCode}"
 }
 
+# if stuff already in prompt command, demarcate with ; unless already ending with ;
+if [[ -n "${PROMPT_COMMAND}" ]] && grep -vq ';[[:space:]]*$' <<< "${PROMPT_COMMAND}"; then
+	PROMPT_COMMAND+=';';
+fi
 PROMPT_COMMAND+='__pretty_ps1_prompt_command;'
