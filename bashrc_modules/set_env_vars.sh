@@ -26,7 +26,7 @@ function __set_env_vars_make_path_env_format_str
 }
 
 # I WILL BE IGNORING ANY DEFAULTS, AND JUST USING MY PREFERRED DEFAULTS
-declare -x PATH;
+export PATH;
 PATH="$(__set_env_vars_make_path_env_format_str << EOF
 "${HOME}/bin"
 "${HOME}/.cargo/bin"
