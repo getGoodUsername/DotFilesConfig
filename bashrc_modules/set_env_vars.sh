@@ -1,9 +1,9 @@
 # automate adding paths to PATH env var, only will add paths that are available w/o duplicates
-function __get_new_path
+function __set_env_vars_make_path_env_format_str
 {
 	# input: PIPED AS STDIN, multiline string, where each line defines a separate path
 	# ex.
-	# __get_new_path << EOL
+	# __set_env_vars_make_path_env_format_str << EOL
 	# ${HOME}/bin
 	# ${HOME}/.local/bin
 	# ${HOME}/go/bin
@@ -19,10 +19,26 @@ function __get_new_path
 	do
 		if [[ -d "${pathDir}" ]]; then
 			finalPATH="${finalPATH}:${pathDir}"
-		else
-			printf '%s\n' "${pathDir} does not exist! Skipped when defining PATH" 1>&2
 		fi
-	done < <( { cat <&0; tr ':' '\n' <<< "${PATH}"; } | sort -u )
+	done < <(cat <&0 | sort -u)
 
 	printf "%s" "${finalPATH/#:/}"
 }
+
+# I WILL BE IGNORING ANY DEFAULTS, AND JUST USING MY PREFERRED DEFAULTS
+declare -x PATH;
+PATH="$(__set_env_vars_make_path_env_format_str << EOF
+"${HOME}/bin"
+"${HOME}/.cargo/bin"
+"${HOME}/go/bin"
+/bin
+/usr/bin
+/usr/local/bin
+/sbin
+/usr/sbin
+/usr/local/sbin
+/usr/games
+/usr/local/games
+/snap/bin
+EOF
+)"
