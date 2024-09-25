@@ -1,14 +1,34 @@
-# in order to have a more "complex" PS1. https://stackoverflow.com/a/16715681/15054688
-function __prompt_command
+# to learn about setaf being used in tput, look at man 5 terminfo
+# setaf is a capability code, which as far as I understand, is a special
+# code defined by the terminal emulator that allows you to run the subroutine
+# associated with the cap code. In this case, the output of tput setaf <integer>
+# is the 256 color palette ansi escape code. More on ansi escape code here https://notes.burke.libbey.me/ansi-escape-codes/ 
+# As far as I understand, all of this is just a vestige from bygone days of the "dumb terminal", where
+# they were predefined limitations with said terminal that had to worked with. I guess we still use it
+# because it works fine... but it sure looks ugly! BTW, here is xterm-256-color chart: https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
+
+# doing this to cache results and avoid having to run tput every single time a command finishes
+# shellcheck disable=SC2155
+declare -r __pretty_ps1_prompt_command_colors_orange="\[$(tput setaf 215)\]"
+declare -r __pretty_ps1_prompt_command_colors_brightGreen="\[$(tput setaf 78)\]"
+declare -r __pretty_ps1_prompt_command_colors_calmGreen="\[$(tput setaf 36)\]"
+declare -r __pretty_ps1_prompt_command_colors_purple="\[$(tput setaf 63)\]"
+declare -r __pretty_ps1_prompt_command_colors_pink="\[$(tput setaf 169)\]"
+declare -r __pretty_ps1_prompt_command_colors_defaultTextColor="\[$(tput sgr0)\]"
+declare -r __pretty_ps1_prompt_command_colors_errorOrange="\[$(tput setaf 202)\]"
+
+# in order to have a conditionally changing PS1. https://stackoverflow.com/a/16715681/15054688
+function __pretty_ps1_prompt_command
 {
-	local exitCode="${?}"
-	local -r orange="\[$(tput setaf 215)\]"
-	local -r brightGreen="\[$(tput setaf 78)\]"
-	local -r calmGreen="\[$(tput setaf 36)\]"
-	local -r purple="\[$(tput setaf 63)\]"
-	local -r pink="\[$(tput setaf 169)\]"
-	local -r defaultTextColor="\[$(tput sgr0)\]"
-	local -r errorOrange="\[$(tput setaf 202)\]"
+	local -r exitCode="${?}"
+	# -r makes var readonly, -n makes var a reference (basically a pointer) to another var
+	local -rn orange='__pretty_ps1_prompt_command_colors_orange'
+	local -rn brightGreen='__pretty_ps1_prompt_command_colors_brightGreen'
+	local -rn calmGreen='__pretty_ps1_prompt_command_colors_calmGreen'
+	local -rn purple='__pretty_ps1_prompt_command_colors_purple'
+	local -rn pink='__pretty_ps1_prompt_command_colors_pink'
+	local -rn defaultTextColor='__pretty_ps1_prompt_command_colors_defaultTextColor'
+	local -rn errorOrange='__pretty_ps1_prompt_command_colors_errorOrange'
 
 
 	PS1="${orange}\u${brightGreen}@${purple}\h ${pink}\w"
@@ -22,8 +42,7 @@ function __prompt_command
 	fi
 
 	PS1+="\n❯${defaultTextColor} "
-
-	# sync history between shells: https://unix.stackexchange.com/a/131507
-	history -a
-	history -n
+	return "${exitCode}"
 }
+
+PROMPT_COMMAND+='__pretty_ps1_prompt_command;'
