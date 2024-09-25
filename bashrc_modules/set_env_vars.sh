@@ -42,3 +42,7 @@ PATH="$(__set_env_vars_make_path_env_format_str << EOF
 /snap/bin
 EOF
 )"
+export PAGER='less -R --mouse -i --use-color' # -R allows colors from input escape chars, -i lower case matches uppercase, uppercase still only matches uppercase, --use-color enables color usage for helpful highlighting in less
+export MANPAGER="$PAGER"
+export BAT_PAGER="$PAGER"
+export EDITOR='vim' # make default editor for multiline command vim. use ctrl-x ctrl-e
