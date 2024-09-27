@@ -15,14 +15,19 @@
 - when modifying `PROMPT_COMMAND`, always append to it like so
 ```bash
 PROMPT_COMMAND+=";<you command>;"
-PROMPT_COMMAND+=";function_to_run;"
-PROMPT_COMMAND+=";function_to_run;something_else_also;"
+PROMPT_COMMAND="${PROMPT_COMMAND};function_to_run;"
+PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
 ```
-- basically, make sure to start and end with a semi colon with prompt_command additions!!!
-- NOTE, all these modules will be SOURCED, meaning that any variables that are declared globally in a module will also continue to be declared in the bash shell
-    - you can get around this by making variables within functions with the local keyword or if you need a global variable, make a module in the `Mandatory_Last` dir
+- basically, make sure to **start and end with a semi colon** with your additions to `PROMPT_COMMAND`!!!
+- NOTE, all these modules will be SOURCED, meaning that any variables that are declared globally in a module will also continue to be declared in the bash shell. Also, when sourcing, it is more or less equivalent to copy and pasting the code into the current shell's environment, ***DON'T USE `exit`*** as the shell will never open...
+    - you can get around this by making variables within functions with the local keyword, or `unset -v` at the end of your module, or **if and only if** the module you are making is within `Mandatory_First` make a cleanup module in `Mandatory_Last`
 - number the modules within a dir to designate an ordering
-    - 01_Core/00_run_1st
-    - 01_Core/05_run_6th
+    - `01_Core/00_run_1st`
+    - `01_Core/05_run_6th`
 - ALWAYS end module with `.sh` extension.
 - since bash globs are AFAIK always sorted in ascending order, take advantage of this when loading scripts into your bashrc, eg, 01_Core/*.sh will list all the modules in order!
+- When making functions in a module, start the function name with two '_', then the core name of the module (if module dir name is 02_Optional_Fancy/00_hello_world, the core name is Optional_Fancy_hello_world), and then the actual name of the function to avoid collisions. If the function is not meant be to long lived please consider using `unset -f <name of function>` and if it is meant to be long lived, please use `readonly -f` to avoid any other module accidentally redefining your function.
+    - Example of function naming in module name 05_Cool under the 01_Core dir where the function name would otherwise be `say_hello`:
+        - `function __Core_dir_Cool_say_hello`
+
+## Example script to load in all modules
