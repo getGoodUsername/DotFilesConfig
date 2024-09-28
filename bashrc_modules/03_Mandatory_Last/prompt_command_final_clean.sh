@@ -1,4 +1,4 @@
-function __prompt_command_final_clean_main
+function __Mandatory_Last__prompt_command_final_clean__main
 {
     if [ -z "${PROMPT_COMMAND}" ]; then return 0; fi
 
@@ -7,28 +7,39 @@ function __prompt_command_final_clean_main
     # line in PROMPT_COMMAND this will still insure that it gets the "right" code.
 
     # shellcheck disable=SC2016
-    local -r keep_return_val_head='
-__prompt_command_final_clean_exit_code_store="${?}"
-function __prompt_command_final_clean_exit_code_propagator
+    local -r keep_return_val_head=\
+'
+__Mandatory_Last__prompt_command_final_clean__exit_code_store="${?}"
+function __Mandatory_Last__prompt_command_final_clean__exit_code_propagator
 {
-    return "${__prompt_command_final_clean_exit_code_store}"
+    return "${__Mandatory_Last__prompt_command_final_clean__exit_code_store}"
 }
 '
+
+
     # multiline strings are weird here so they don't look as
     #  weird when inspecting PROMPT_COMMAND in interactive shell
-    local -r unset_exit_code_helper='
-unset -v \
-    __prompt_command_final_clean_exit_code_store \
-    __prompt_command_final_clean_exit_code_propagator
+    local -r unset_exit_code_helper=\
 '
+unset -v \
+    __Mandatory_Last__prompt_command_final_clean__exit_code_store \
+    __Mandatory_Last__prompt_command_final_clean__exit_code_propagator
+'
+
+
 
     # find all ';' sequences that are not being escaped with a
     # forward slash, and replace them with just a new line
     PROMPT_COMMAND="$(sed -E 's/([^\]);+/\1;\n/g' <<< "${PROMPT_COMMAND}")"
 
-    PROMPT_COMMAND="
+
+
+
+    PROMPT_COMMAND=\
+"
 ${keep_return_val_head}
-$(sed -E 's/(^.*$)/__prompt_command_final_clean_exit_code_propagator;\n\1/' <<< "${PROMPT_COMMAND}")
+$(sed -E 's/(^.*$)/__Mandatory_Last__prompt_command_final_clean__exit_code_propagator;\n\1/' <<< "${PROMPT_COMMAND}")
+__Mandatory_Last__prompt_command_final_clean__exit_code_propagator;
 ${unset_exit_code_helper}
 "
     readonly PROMPT_COMMAND # no more editing of PROMPT_COMMAND is allowed after sourcing this module!!!!
@@ -47,5 +58,5 @@ ${unset_exit_code_helper}
     # '_func_another_thing' which is gibberish!!!!
 }
 
-__prompt_command_final_clean_main
-unset -f __prompt_command_final_clean_main
+__Mandatory_Last__prompt_command_final_clean__main
+unset -f __Mandatory_Last__prompt_command_final_clean__main

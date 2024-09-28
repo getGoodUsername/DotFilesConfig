@@ -28,6 +28,6 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
 - since bash globs are AFAIK always sorted in ascending order, take advantage of this when loading scripts into your bashrc, eg, 01_Core/*.sh will list all the modules in order!
 - When making functions in a module, start the function name with two '_', then the core name of the module (if module dir name is 02_Optional_Fancy/00_hello_world, the core name is Optional_Fancy_hello_world), and then the actual name of the function to avoid collisions. If the function is not meant be to long lived please consider using `unset -f <name of function>` and if it is meant to be long lived, please use `readonly -f` to avoid any other module accidentally redefining your function.
     - Example of function naming in module name 05_Cool under the 01_Core dir where the function name would otherwise be `say_hello`:
-        - `function __Core_dir_Cool_say_hello`
+        - `function __Core_dir__Cool__say_hello`
 
 ## Example script to load in all modules
