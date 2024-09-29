@@ -8,8 +8,7 @@ function __Mandatory_Last__prompt_command_final_clean__main
 
     # shellcheck disable=SC2016
     local -r keep_return_val_head=\
-'
-__Mandatory_Last__prompt_command_final_clean__exit_code_store="${?}"
+'__Mandatory_Last__prompt_command_final_clean__exit_code_store="${?}"
 function __Mandatory_Last__prompt_command_final_clean__exit_code_propagator
 {
     return "${__Mandatory_Last__prompt_command_final_clean__exit_code_store}"
@@ -36,13 +35,11 @@ unset -v \
 
 
     PROMPT_COMMAND=\
-"
-${keep_return_val_head}
+"${keep_return_val_head}
 $(sed -E 's/(^.*$)/__Mandatory_Last__prompt_command_final_clean__exit_code_propagator;\n\1/' <<< "${PROMPT_COMMAND}")
 __Mandatory_Last__prompt_command_final_clean__exit_code_propagator;
-${unset_exit_code_helper}
-"
-    readonly PROMPT_COMMAND # no more editing of PROMPT_COMMAND is allowed after sourcing this module!!!!
+${unset_exit_code_helper}"
+    # readonly PROMPT_COMMAND # no more editing of PROMPT_COMMAND is allowed after sourcing this module!!!!
 
     # All this is done because when my modules append to PROMPT_COMMAND
     # IT SHOULD (as according to the README.md), add the new command/s
