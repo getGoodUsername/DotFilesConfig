@@ -94,11 +94,48 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
     - `readonly -f <name of your function>`
 
 ### Tips & Tricks
-- bash globs are (look under the *Pathname Expansion* section in the bash manpage) sorted in ascending order (unless shell option **nocaseglob* is enabled)
+- bash globs are (look under the *Pathname Expansion* section in the bash manpage) sorted in ascii ascending order (unless shell option **nocaseglob** is enabled)
     - take advantage of this when loading scripts into your bashrc
     - `01_Core/*.sh` will list all modules in `01_Core`, not under another dir, in order!
 
-## Example script to load in all modules
-```bash
+## Example scripts
+- replace `<bashrc modules location>` with the `bashrc_modules` location.
+    - I would recommend to create a symbolic link in `~` to `bashrc_modules`
+- Note: Use of `find` instead of something like `**/*.sh` because `**/*.sh` would implicitly requires:
+    - shopt -s globstar
+- shopt -s dotglob can result in unexpected execution
+- more dependable to use find in order to avoid having to think about what has or has not been enabled in the current bash shell... and then returning to that state, etc, etc, etc.
 
+### Load All Modules
+```bash
+source <(\
+    find <bashrc modules location> -type f -name '[^.]*.sh' -print0 \
+        | sort -z \
+        | sed -z -e "s/^/'/" -e "s/\$/'/" -e 's/^/source /' \
+        | tr '\0' '\n' \
+)
+```
+
+### Only Mandatory
+```bash
+source <(\
+    find \
+    <bashrc modules location>/[0-9][0-9]_Mandatory* -type f -name '[^.]*.sh' -print0 \
+        | sort -z \
+        | sed -z -e "s/^/'/" -e "s/\$/'/" -e 's/^/source /' \
+        | tr '\0' '\n' \
+)
+```
+
+## Some
+```bash
+source <(\
+    find \
+    <bashrc modules location>/[0-9][0-9]_Mandatory* \
+    <bashrc modules location>/Some_Selection \
+    -type f -name '[^.]*.sh' -print0 \
+        | sort -z \
+        | sed -z -e "s/^/'/" -e "s/\$/'/" -e 's/^/source /' \
+        | tr '\0' '\n' \
+)
 ```
