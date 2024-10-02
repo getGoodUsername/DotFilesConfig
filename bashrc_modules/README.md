@@ -37,15 +37,24 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
     - the sourced module acts on the current shell and therefore will never allow shell to fully 'open'!
 
 ### Module naming conventions
-- number the modules within a dir to designate an ordering
+- **ALWAYS** end module with `.sh` extension.
+- **ALWAYS** number the modules to designate ordering
+    - must be two digits always, 5 -> 05, 42 -> 42
 - module names must follow the following naming pattern:
     - **`[0-9]{2}_<your module name>.sh`**
+- **`<your module name>` must solely be made of chars within `[a-zA-Z0-9_]`**
+    - **can only have sequences of '_' of size 1 in module name**
+        - any longer makes module function naming confusing
+    - **can NOT start your module name with '_'**
+        - again, having to due with function naming
 - Examples:
-    - `01_Core/00_run_1st`
+    - Allowed: `00_run_1st.sh`
         - module name here is `run_1st`
-    - `01_Core/05_run_6th`
+    - Allowed: `05_run_6th.sh`
         - module name here is `run_6th`
-- **ALWAYS** end module with `.sh` extension.
+    - **NOT ALLOWED**: `5__hello___world-this-is_wrong!.module`
+        - Allowed: `05_hello_world_this_is_right_exclamation_mark.sh`
+            - module name here is `hello_world_this_is_right_exclamation_mark`
 
 ### Function rules
 - Naming rules imposed to avoid collisions and to be able to quickly tell what module is loading what function.
@@ -55,10 +64,10 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
     - **module core name**: `module name - number ordering - .sh`
     - **func name**: what you would otherwise name the function outside of my enforced naming standards.
     - Examples:
-        - `dir name = 05_hello_world`
-        - `dir core name = hello_world`
-        - `module name = 07_do_something.sh`
-        - `module core name = do_something`
+        - `<dir name> = 05_hello_world`
+        - `<dir core name> = hello_world`
+        - `<module name> = 07_do_something.sh`
+        - `<module core name> = do_something`
         - naming of a function in dir `03_Mandatory_Last` in module `03_hello_world.sh` whose function name would normally be `life_is_full_of_wonder`
             - `__Mandatory_Last__hello_world__life_is_full_of_wonder`
 - If function is only used within your single module use:
