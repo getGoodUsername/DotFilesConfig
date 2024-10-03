@@ -1,7 +1,7 @@
-function __set_ssh_agent_launch_ssh_agent
+function __Core__launch_ssh_agent_load_ssh_keys__impl
 {
 	# source/inspo: https://stackoverflow.com/a/38619604
-	local -r ssh_agent_auth_sock="${HOME}/.ssh/sshAgent_socket"
+	local -r ssh_agent_auth_sock="${HOME}/.ssh/.sshAgent_socket"
 	if [ ! -S "$ssh_agent_auth_sock" ]; then
 		eval "$(ssh-agent -s)" # will export SSH_AUTH_SOCK 
 		ln -sf "$SSH_AUTH_SOCK" "$ssh_agent_auth_sock"
@@ -30,4 +30,5 @@ function __set_ssh_agent_launch_ssh_agent
 	fi
 }
 
-__set_ssh_agent_launch_ssh_agent
+__Core__launch_ssh_agent_load_ssh_keys__impl
+unset -f __Core__launch_ssh_agent_load_ssh_keys__impl
