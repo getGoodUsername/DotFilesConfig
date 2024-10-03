@@ -146,7 +146,7 @@ source <(
 )
 ```
 
-### Check Time (macro)
+### Load All & Check Time (macro)
 ```bash
 source <(
     echo 'start_time=$EPOCHREALTIME;'
