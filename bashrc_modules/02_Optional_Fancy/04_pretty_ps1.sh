@@ -9,28 +9,32 @@
 # because it works fine... but it sure looks ugly! BTW, here is xterm-256-color chart:
 # https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
 
-# doing this to cache results and avoid having to run tput every single time a command finishes
-# shellcheck disable=SC2155
-declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_orange="\[$(tput setaf 215)\]"
-declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_brightGreen="\[$(tput setaf 78)\]"
-declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_calmGreen="\[$(tput setaf 36)\]"
-declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_purple="\[$(tput setaf 63)\]"
-declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_pink="\[$(tput setaf 169)\]"
-declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_defaultTextColor="\[$(tput sgr0)\]"
-declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_errorOrange="\[$(tput setaf 202)\]"
+# This is where I got all the wierd ansi codes from (using tput)
+#
+#
+# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_orange="\[$(tput setaf 215)\]"
+# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_brightGreen="\[$(tput setaf 78)\]"
+# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_calmGreen="\[$(tput setaf 36)\]"
+# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_purple="\[$(tput setaf 63)\]"
+# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_pink="\[$(tput setaf 169)\]"
+# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_defaultTextColor="\[$(tput sgr0)\]"
+# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_errorOrange="\[$(tput setaf 202)\]"
+#
+#
+# uncomment the above declare block and run this to get color variables as defined in function
+# declare -r | grep '__Optional_Fancy__pretty_ps1__prompt_command' | sed -e 's/^declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_/local -r /' | ogcopy
 
 # in order to have a conditionally changing PS1. https://stackoverflow.com/a/16715681/15054688
 function __Optional_Fancy__pretty_ps1__prompt_command
 {
 	local -r exitCode="${?}"
-	# -r makes var readonly, -n makes var a reference (basically a pointer) to another var
-	local -rn orange='__Optional_Fancy__pretty_ps1__prompt_command_colors_orange'
-	local -rn brightGreen='__Optional_Fancy__pretty_ps1__prompt_command_colors_brightGreen'
-	local -rn calmGreen='__Optional_Fancy__pretty_ps1__prompt_command_colors_calmGreen'
-	local -rn purple='__Optional_Fancy__pretty_ps1__prompt_command_colors_purple'
-	local -rn pink='__Optional_Fancy__pretty_ps1__prompt_command_colors_pink'
-	local -rn defaultTextColor='__Optional_Fancy__pretty_ps1__prompt_command_colors_defaultTextColor'
-	local -rn errorOrange='__Optional_Fancy__pretty_ps1__prompt_command_colors_errorOrange'
+	local -r brightGreen=$'\\[\E[38;5;78m\\]'
+	local -r calmGreen=$'\\[\E[38;5;36m\\]'
+	local -r defaultTextColor=$'\\[\E(B\E[m\\]'
+	local -r errorOrange=$'\\[\E[38;5;202m\\]'
+	local -r orange=$'\\[\E[38;5;215m\\]'
+	local -r pink=$'\\[\E[38;5;169m\\]'
+	local -r purple=$'\\[\E[38;5;63m\\]'
 
 
 	PS1="${orange}\u${brightGreen}@${purple}\h ${pink}\w"
