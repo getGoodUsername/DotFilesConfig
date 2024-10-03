@@ -105,37 +105,60 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
     - shopt -s globstar
 - shopt -s dotglob can result in unexpected execution
 - more dependable to use find in order to avoid having to think about what has or has not been enabled in the current bash shell... and then returning to that state, etc, etc, etc.
+- also use -H option with find to allow for bashrc modules location to be a symbolic link
 
 ### Load All Modules
 ```bash
-source <(\
-    find <bashrc modules location> -type f -name '[^.]*.sh' -print0 \
-        | sort -z \
-        | sed -z -e "s/^/'/" -e "s/\$/'/" -e 's/^/source /' \
-        | tr '\0' '\n' \
+source <(
+    find -H <bashrc modules location> -type f -name '[^.]*.sh' \
+        | sort \
+        | sed -E $'s/(^.+$)/source \'\\1\';/'
+)
+```
+
+### Load All With Error Notification
+```bash
+source <(
+    find -H <bashrc modules location> -type f -name '[^.]*.sh' \
+        | sort \
+        | sed -E $'s/(^.+$)/source \'\\1\'; if [ $? -ne 0 ]; then echo \'ERROR: \\1\'; fi/'
 )
 ```
 
 ### Only Mandatory
 ```bash
-source <(\
-    find \
-    <bashrc modules location>/[0-9][0-9]_Mandatory* -type f -name '[^.]*.sh' -print0 \
-        | sort -z \
-        | sed -z -e "s/^/'/" -e "s/\$/'/" -e 's/^/source /' \
-        | tr '\0' '\n' \
+source <(
+    find -H <bashrc modules location>/[0-9][0-9]_Mandatory* -type f -name '[^.]*.sh' \
+        | sort \
+        | sed -E $'s/(^.+$)/source \'\\1\';/'
 )
 ```
 
-## Some
+### Some
 ```bash
-source <(\
-    find \
+source <(
+    find -H \
     <bashrc modules location>/[0-9][0-9]_Mandatory* \
     <bashrc modules location>/Some_Selection \
-    -type f -name '[^.]*.sh' -print0 \
-        | sort -z \
-        | sed -z -e "s/^/'/" -e "s/\$/'/" -e 's/^/source /' \
-        | tr '\0' '\n' \
+    -type f -name '[^.]*.sh' \
+        | sort \
+        | sed -E $'s/(^.+$)/source \'\\1\';/'
+)
+```
+
+### Check Time (macro)
+```bash
+source <(
+    echo 'start_time=$EPOCHREALTIME;'
+    find -H <bashrc modules location> -type f -name '[^.]*.sh' \
+        | sort \
+        | sed -E $'s/(^.+$)/source \'\\1\';/'
+    echo 'echo "time taken to load modules: $(bc <<< "(${EPOCHREALTIME} - ${start_time}) * 1000")ms"'
+)
+```
+
+### Blacklist (interactively)
+```bash
+source <(
 )
 ```
