@@ -9,17 +9,13 @@ shopt -s histappend
 HISTSIZE=$(( 2 ** 20 ))
 HISTFILESIZE=$(( HISTSIZE * 2 ))
 
-function __sync_cmd_history_between_multiple_shells
+function __Optional_Fancy__sync_cmd_history_between_open_shells__prompt_command
 {
-	local -r exitCode="${?}"
 	# sync history between shells: https://unix.stackexchange.com/a/131507
 	history -a
 	history -n
-	return "${exitCode}" # do this so exit code from previous process doesn't get mangled
 }
+readonly -f __Optional_Fancy__sync_cmd_history_between_open_shells__prompt_command;
 
-# if stuff already in prompt command, demarcate with ; unless already ending with ;
-if [[ -n "${PROMPT_COMMAND}" ]] && grep -vq ';[[:space:]]*$' <<< "${PROMPT_COMMAND}"; then
-	PROMPT_COMMAND+=';';
-fi
-PROMPT_COMMAND+='__sync_cmd_history_between_multiple_shells;'
+# extra ; as noted by README.md
+PROMPT_COMMAND+=';__Optional_Fancy__sync_cmd_history_between_open_shells__prompt_command;'
