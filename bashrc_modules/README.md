@@ -126,10 +126,22 @@ source <(
 ```
 
 ### Load All Except Blacklist
+- process all path names through `realpath` cmd line util to ensure every path string is the same, `./<path>` and `<path>` are equivalent but uniq won't see it as so!
 ```bash
+declare -a module_blacklist;
+module_blacklist=\
+(
+    '<path_to_module_0>'
+    '<path_to_module_1>'
+    '...'
+    '<path_to_module_n>'
+)
 source <(
     find -H <bashrc modules location> -type f -name '[^.]*.sh' \
         | sort \
+        | xargs realpath \
+        | sort --merge - <(realpath < | sort) \
+        | uniq -u
 )
 ```
 
