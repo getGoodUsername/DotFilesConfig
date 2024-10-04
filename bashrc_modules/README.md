@@ -1,6 +1,6 @@
 # Why Modules?
 >
-> I get the ability to pick and choose what you want to have in your personal startup script! Not every computer I have is going to have `zoxide` installed, or any other fancy tool!
+> I get the ability to pick and choose what I want to have in your personal startup script! Not every computer I have is going to have `zoxide` installed, or any other fancy tool!
 
 ## General Organization
 
@@ -33,13 +33,13 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
 
 - basically, make sure to **start and end with a semi colon** with your additions to `PROMPT_COMMAND`!!!
 - there is a *whole lot more* limitations with PROMPT_COMMAND (that I impose)
-  - ***PLEASE READ MORE ABOUT `DA RULES` FOR `PROMPT_COMMAND`: [HERE](./03_Mandatory_Last/prompt_command_final_clean.sh)***
+  - ***PLEASE READ MORE ABOUT `DA RULES` FOR `PROMPT_COMMAND`: [HERE](./03_Mandatory_Last/01_prompt_command_final_clean.sh)***
 
 ### Module loading implications (due to sourcing step)
 
 - any variables that is global in a module will be global in interactive bash session
-  - **instead:**
-    - declare variables within functions using the `local` keyword
+  - **consider:**
+    - declaring variables within functions using the `local` keyword
     - unset variables after done using them with `unset -v` if declared globally in module
     - **if and only if** the module you are making is within `Mandatory_First`, you can make a cleanup module in `Mandatory_Last` to unset your global variables
 - ***DON'T USE `exit`***
@@ -84,12 +84,12 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
   - **dir core name**: `dir name - number ordering`
   - **module core name**: `module name - number ordering - .sh`
   - **func name**: what you would otherwise name the function outside of my enforced naming standards.
-  - Examples name -> core name:
+  - Examples of converting `name -> core name`:
     - `<dir name> = 05_hello_world`
     - `<dir core name> = hello_world`
     - `<module name> = 07_do_something.sh`
     - `<module core name> = do_something`
-  - Examples for making function names in your modules:
+  - Examples for making function names in modules:
     - naming of a function in dir `03_Mandatory_Last` in module `03_hello_world.sh` whose function name would normally be `life_is_full_of_wonder`
       - `__Mandatory_Last__hello_world__life_is_full_of_wonder`
     - naming of a function in top level dir `05_Cool`, under dir `02_Custom` in module `09_my_mod.sh` whose function name would normally be `breathe_baby`
@@ -109,11 +109,11 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
 
 - replace `<bashrc modules location>` with the `bashrc_modules` location.
   - I would recommend to create a symbolic link in `~` to `bashrc_modules`
-- Note: Use of `find` instead of something like `**/*.sh` because `**/*.sh` would implicitly requires:
-  - shopt -s globstar
-- shopt -s dotglob can result in unexpected execution
-- more dependable to use find in order to avoid having to think about what has or has not been enabled in the current bash shell... and then returning to that state, etc, etc, etc.
-- also use -H option with find to allow for bashrc modules location to be a symbolic link
+- Note: Use of `find` instead of something like `**/*.sh` because `**/*.sh` implicitly requires:
+  - `shopt -s globstar`
+- Also, if `shopt -s dotglob` is enabled, can result in unexpected execution
+- more dependable to use `find` in order to avoid having to think about what has or has not been enabled in the current bash shell... and then returning to that state, etc, etc, etc.
+- also use `-H` option with `find` to allow for `<bashrc modules location>` to be a symbolic link
 
 ### Load All Modules
 
@@ -125,7 +125,7 @@ source <(
 )
 ```
 
-### Load All With Error Notification
+### Load All With Notification If Error
 
 ```bash
 source <(
@@ -137,24 +137,29 @@ source <(
 
 ### Load All Except Blacklist
 
-- process all path names through `realpath` cmd line util to ensure every path string is the same, `./<path>` and `<path>` are equivalent but uniq won't see it as so!
+- process all path names through `realpath` to ensure every path string is the same
+  - `./<path>` and `<path>` are equivalent but uniq won't see it as so!
 
 ```bash
-declare -a module_blacklist;
-module_blacklist=\
-(
-    '<path_to_module_0>'
-    '<path_to_module_1>'
-    '...'
-    '<path_to_module_n>'
-)
 source <(
     find -H <bashrc modules location> -type f -name '[^.]*.sh' \
         | sort \
         | xargs realpath \
-        | sort --merge - <(realpath < | sort) \
-        | uniq -u
+        | sort --merge - <(xargs --arg-file=<blacklist file path> realpath | sort) \
+        | uniq -u \
+        | sed -E $'s/(^.+$)/source \'\\1\';/'
 )
+```
+
+### Make Blacklist File (Interactive)
+
+- send EOF (usually ctrl + d) to stop!
+
+```bash
+select blacklist_fname in $(find -H <bashrc modules location> -name '[^.]*.sh' | xargs realpath -s | sort); do
+    printf '%s\n' "$blacklist_fname" >> <blacklist file path>;
+    echo "${blacklist_fname} added to blacklist!";
+done
 ```
 
 ### Load Some
@@ -180,14 +185,15 @@ source <(
         | sed -E $'s/(^.+$)/source \'\\1\';/'
 )
 module_end_time="${EPOCHREALTIME}";
-module_elapsed_time="$(bc <<< "(${module_end_time} - ${module_start_time}) * 1000")"
-echo "time taken to load modules: ${module_elapsed_time}ms"
-unset -v module_start_time  module_end_time  module_elapsed_time
+module_elapsed_time="$(bc <<< "(${module_end_time} - ${module_start_time}) * 1000")";
+echo "time taken to load modules: ${module_elapsed_time}ms";
+unset -v module_start_time  module_end_time  module_elapsed_time;
 ```
 
 ### Load All & Log Time (micro)
 
 ```bash
+log_module_time_file='.bashrc_module_times.log';
 function check_module_time
 {
     local start;
@@ -196,20 +202,22 @@ function check_module_time
     local -r module="$1";
 
     start="$EPOCHREALTIME"
-    source "${module}"
+    source "${module}";
     end="$EPOCHREALTIME";
 
     elapsed_ms="$(bc <<< "(${end} - ${start}) * 1000")";
-    echo "${elapsed_ms}: ${module}" >> load_module_time_log.log
+    echo "${elapsed_ms}: ${module}" >> "${log_module_time_file}";
 }
 
-echo "************************ start of log: ${EPOCHREALTIME} ************************" >> load_module_time_log.log
+echo "Would you like to clear ${log_module_time_file}?";
+rm -i "${log_module_time_file}"; # clear
 source <(
     find -H <bashrc modules location> -type f -name '[^.]*.sh' \
         | sort \
         | sed -E $'s/(^.+$)/check_module_time \'\\1\';/'
 )
-echo "************************ end of log: ${EPOCHREALTIME} ************************" >> load_module_time_log.log
-printf '\n\n\n\n' >> load_module_time_log.log
-unset -f check_module_time
+
+sort -rn "${log_module_time_file}" | less;
+unset -f check_module_time;
+unset -v log_module_time_file;
 ```
