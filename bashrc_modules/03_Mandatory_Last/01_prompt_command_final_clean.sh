@@ -129,7 +129,7 @@ function __Mandatory_Last__prompt_command_final_clean__main
         <<< ";${PROMPT_COMMAND};" \
         | tail -n +2 \
     )"
-    # readonly PROMPT_COMMAND
+    readonly PROMPT_COMMAND
 }
 
 __Mandatory_Last__prompt_command_final_clean__main

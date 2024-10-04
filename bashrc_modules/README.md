@@ -125,16 +125,15 @@ source <(
 )
 ```
 
-### Only Mandatory
+### Load All Except Blacklist
 ```bash
 source <(
-    find -H <bashrc modules location>/[0-9][0-9]_Mandatory* -type f -name '[^.]*.sh' \
+    find -H <bashrc modules location> -type f -name '[^.]*.sh' \
         | sort \
-        | sed -E $'s/(^.+$)/source \'\\1\';/'
 )
 ```
 
-### Some
+### Load Some
 ```bash
 source <(
     find -H \
@@ -146,19 +145,44 @@ source <(
 )
 ```
 
-### Load All & Check Time (macro)
+### Load All & Log Time (macro)
 ```bash
+module_start_time="${EPOCHREALTIME}";
 source <(
-    echo 'start_time=$EPOCHREALTIME;'
     find -H <bashrc modules location> -type f -name '[^.]*.sh' \
         | sort \
         | sed -E $'s/(^.+$)/source \'\\1\';/'
-    echo 'echo "time taken to load modules: $(bc <<< "(${EPOCHREALTIME} - ${start_time}) * 1000")ms"'
 )
+module_end_time="${EPOCHREALTIME}";
+module_elapsed_time="$(bc <<< "(${module_end_time} - ${module_start_time}) * 1000")"
+echo "time taken to load modules: ${module_elapsed_time}ms"
+unset -v module_start_time  module_end_time  module_elapsed_time
 ```
 
-### Blacklist (interactively)
+### Load All & Log Time (micro)
 ```bash
+function check_module_time
+{
+    local start;
+    local end;
+    local elapsed_ms;
+    local -r module="$1";
+
+    start="$EPOCHREALTIME"
+    source "${module}"
+    end="$EPOCHREALTIME";
+
+    elapsed_ms="$(bc <<< "(${end} - ${start}) * 1000")";
+    echo "${elapsed_ms}: ${module}" >> load_module_time_log.log
+}
+
+echo "************************ start of log: ${EPOCHREALTIME} ************************" >> load_module_time_log.log
 source <(
+    find -H <bashrc modules location> -type f -name '[^.]*.sh' \
+        | sort \
+        | sed -E $'s/(^.+$)/check_module_time \'\\1\';/'
 )
+echo "************************ end of log: ${EPOCHREALTIME} ************************" >> load_module_time_log.log
+printf '\n\n\n\n' >> load_module_time_log.log
+unset -f check_module_time
 ```
