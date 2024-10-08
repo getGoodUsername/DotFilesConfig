@@ -107,19 +107,19 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
 
 ## Example scripts
 
-- replace `<bashrc modules location>` with the `bashrc_modules` location.
+- replace `"${HOME}/bashrc_modules"` with your `bashrc_modules` location.
   - I would recommend to create a symbolic link in `~` to `bashrc_modules`
 - Note: Use of `find` instead of something like `**/*.sh` because `**/*.sh` implicitly requires:
   - `shopt -s globstar`
 - Also, if `shopt -s dotglob` is enabled, can result in unexpected execution
 - more dependable to use `find` in order to avoid having to think about what has or has not been enabled in the current bash shell... and then returning to that state, etc, etc, etc.
-- also use `-H` option with `find` to allow for `<bashrc modules location>` to be a symbolic link
+- also use `-H` option with `find` to allow for `"${HOME}/bashrc_modules"` to be a symbolic link
 
 ### Load All Modules
 
 ```bash
 source <(
-    find -H <bashrc modules location> -type f -name '[^.]*.sh' \
+    find -H "${HOME}/bashrc_modules" -type f -name '[^.]*.sh' \
         | sort \
         | sed -E $'s/(^.+$)/source \'\\1\';/'
 )
@@ -129,25 +129,25 @@ source <(
 
 ```bash
 source <(
-    find -H <bashrc modules location> -type f -name '[^.]*.sh' \
+    find -H "${HOME}/bashrc_modules" -type f -name '[^.]*.sh' \
         | sort \
         | sed -E $'s/(^.+$)/source \'\\1\'; if [ $? -ne 0 ]; then echo \'ERROR: \\1\'; fi/'
 )
 ```
 
-### Load All Except Blacklist
+### Load All Except Blacklist (With Error Notification)
 
 - process all path names through `realpath` to ensure every path string is the same
   - `./<path>` and `<path>` are equivalent but uniq won't see it as so!
 
 ```bash
 source <(
-    find -H <bashrc modules location> -type f -name '[^.]*.sh' \
+    find -H "${HOME}/bashrc_modules" -type f -name '[^.]*.sh' \
         | sort \
         | xargs realpath \
-        | sort --merge - <(xargs --arg-file=<blacklist file path> realpath | sort) \
+        | sort --merge - <(xargs --no-run-if-empty --arg-file="${HOME}/.bashrc_blacklist_modules.txt" realpath | sort) \
         | uniq -u \
-        | sed -E $'s/(^.+$)/source \'\\1\';/'
+        | sed -E $'s/(^.+$)/source \'\\1\'; if [ $? -ne 0 ]; then echo \'ERROR: \\1\'; fi/'
 )
 ```
 
@@ -156,8 +156,8 @@ source <(
 - send EOF (usually ctrl + d) to stop!
 
 ```bash
-select blacklist_fname in $(find -H <bashrc modules location> -name '[^.]*.sh' | xargs realpath -s | sort); do
-    printf '%s\n' "$blacklist_fname" >> <blacklist file path>;
+select blacklist_fname in $(find -H "${HOME}/bashrc_modules" -name '[^.]*.sh' | xargs realpath -s | sort); do
+    printf '%s\n' "$blacklist_fname" >> "${HOME}/.bashrc_blacklist_modules.txt";
     echo "${blacklist_fname} added to blacklist!";
 done
 ```
@@ -167,57 +167,76 @@ done
 ```bash
 source <(
     find -H \
-    <bashrc modules location>/[0-9][0-9]_Mandatory* \
-    <bashrc modules location>/Some_Selection \
+    "${HOME}/bashrc_modules"/[0-9][0-9]_Mandatory* \
+    "${HOME}/bashrc_modules"/Some_Selection \
     -type f -name '[^.]*.sh' \
         | sort \
         | sed -E $'s/(^.+$)/source \'\\1\';/'
 )
 ```
 
-### Load All & Log Time (macro)
+### Profile `.bashrc` Time
+
+- `-i` ensures that shell is treated as interactive
+  - sometimes, .bashrc will include a section to avoid running all the extra setup if not interactive, therefore in order to make sure our whole rc file gets tested add `-i`
 
 ```bash
-module_start_time="${EPOCHREALTIME}";
-source <(
-    find -H <bashrc modules location> -type f -name '[^.]*.sh' \
-        | sort \
-        | sed -E $'s/(^.+$)/source \'\\1\';/'
-)
-module_end_time="${EPOCHREALTIME}";
-module_elapsed_time="$(bc <<< "(${module_end_time} - ${module_start_time}) * 1000")";
-echo "time taken to load modules: ${module_elapsed_time}ms";
-unset -v module_start_time  module_end_time  module_elapsed_time;
+hyperfine --shell=none "bash --rcfile ${HOME}/.bashrc -ci ''"
 ```
 
-### Load All & Log Time (micro)
+### Profile Module Time (macro)
 
 ```bash
-log_module_time_file='.bashrc_module_times.log';
-function check_module_time
+function profile_macro
 {
-    local start;
-    local end;
-    local elapsed_ms;
-    local -r module="$1";
+    local modules_joined_file;
 
-    start="$EPOCHREALTIME"
-    source "${module}";
-    end="$EPOCHREALTIME";
+    modules_joined_file="$(mktemp)"; readonly modules_joined_file;
+    # shellcheck disable=SC2312,SC2016
+    find -H "${HOME}/bashrc_modules" -type f -name '[^.]*.sh'\
+        | sort \
+        | xargs realpath \
+        | sort --merge - <(xargs --no-run-if-empty --arg-file="${HOME}/.bashrc_blacklist_modules.txt" realpath | sort) \
+        | uniq -u \
+        | xargs sh -c 'for module in "$@"; do  cat "${module}"; printf "\n\n\n"; done' join_modules >| "${modules_joined_file}"
 
-    elapsed_ms="$(bc <<< "(${end} - ${start}) * 1000")";
-    echo "${elapsed_ms}: ${module}" >> "${log_module_time_file}";
+    hyperfine --shell=none "bash --norc ${modules_joined_file}"
+    rm "${modules_joined_file}"
 }
 
-echo "Would you like to clear ${log_module_time_file}?";
-rm -i "${log_module_time_file}"; # clear
-source <(
-    find -H <bashrc modules location> -type f -name '[^.]*.sh' \
-        | sort \
-        | sed -E $'s/(^.+$)/check_module_time \'\\1\';/'
-)
+profile_macro
+```
 
-sort -rn "${log_module_time_file}" | less;
-unset -f check_module_time;
-unset -v log_module_time_file;
+### Profile Module Time (micro)
+
+```bash
+function profile_micro
+{
+    local -ri RUNS_PER_MODULE=25;
+    local json_output_file_hyperfine;
+
+    json_output_file_hyperfine="$(mktemp)"; readonly json_output_file_hyperfine;
+    # shellcheck disable=SC2312,SC2016
+    find -H "${HOME}/bashrc_modules" -type f -name '[^.]*.sh'\
+        | sort \
+        | xargs realpath \
+        | sort --merge - <(xargs --no-run-if-empty --arg-file="${HOME}/.bashrc_blacklist_modules.txt" realpath | sort) \
+        | uniq -u \
+        | xargs sh -c 'for module in "$@"; do printf "bash %s\0" "${module}"; done' make_cmd \
+        | xargs -0 hyperfine --shell=none --runs "${RUNS_PER_MODULE}" --export-json "${json_output_file_hyperfine}"
+
+    # shellcheck disable=SC2312
+    jq --raw-output '.results[] | "\(.mean * 1000) ms \(.command)"' "${json_output_file_hyperfine}" \
+        | sed -E \
+            -e 's/^([0-9]+)\.([0-9]{2})[^m]*ms/\1.\2 ms/' \
+            -e 's/^([0-9]{1})\./0\1./' \
+            -e 's/(^[^b]+)bash /\1/' \
+            -e 's:ms .+/bashrc_modules:ms ...:' \
+        | sort -rn \
+        | ${PAGER:-less}
+
+    rm "${json_output_file_hyperfine}"
+}
+
+profile_micro
 ```
