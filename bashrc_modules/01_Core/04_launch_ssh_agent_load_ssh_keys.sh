@@ -1,4 +1,4 @@
-function __Core__launch_ssh_agent_load_ssh_keys__impl
+function __Core::launch_ssh_agent_load_ssh_keys::impl
 {
 	# source/inspo: https://stackoverflow.com/a/38619604
 	# ************************ DEFAULT VALUES ************************
@@ -58,6 +58,6 @@ function __Core__launch_ssh_agent_load_ssh_keys__impl
 	rm "${output_of_ssh_add_file}"
 }
 
-__Core__launch_ssh_agent_load_ssh_keys__impl
-unset -f __Core__launch_ssh_agent_load_ssh_keys__impl
+__Core::launch_ssh_agent_load_ssh_keys::impl
+unset -f __Core::launch_ssh_agent_load_ssh_keys::impl
 

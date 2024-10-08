@@ -9,13 +9,13 @@ shopt -s histappend
 HISTSIZE=$(( 2 ** 20 ))
 HISTFILESIZE=$(( HISTSIZE * 2 ))
 
-function __Optional_Fancy__sync_cmd_history_between_open_shells__prompt_command
+function __Optional_Fancy::sync_cmd_history_between_open_shells::prompt_command
 {
 	# sync history between shells: https://unix.stackexchange.com/a/131507
 	history -a
 	history -n
 }
-readonly -f __Optional_Fancy__sync_cmd_history_between_open_shells__prompt_command;
+readonly -f __Optional_Fancy::sync_cmd_history_between_open_shells::prompt_command;
 
 # extra ; as noted by README.md
-PROMPT_COMMAND+=';__Optional_Fancy__sync_cmd_history_between_open_shells__prompt_command;'
+PROMPT_COMMAND+=';__Optional_Fancy::sync_cmd_history_between_open_shells::prompt_command;'

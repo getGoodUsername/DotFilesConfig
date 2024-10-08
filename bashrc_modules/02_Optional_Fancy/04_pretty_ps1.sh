@@ -12,20 +12,20 @@
 # This is where I got all the weird ansi codes from (using tput)
 #
 #
-# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_orange="\[$(tput setaf 215)\]"
-# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_brightGreen="\[$(tput setaf 78)\]"
-# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_calmGreen="\[$(tput setaf 36)\]"
-# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_purple="\[$(tput setaf 63)\]"
-# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_pink="\[$(tput setaf 169)\]"
-# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_defaultTextColor="\[$(tput sgr0)\]"
-# declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_errorOrange="\[$(tput setaf 202)\]"
+# declare -r __Optional_Fancy::pretty_ps1::prompt_command_colors_orange="\[$(tput setaf 215)\]"
+# declare -r __Optional_Fancy::pretty_ps1::prompt_command_colors_brightGreen="\[$(tput setaf 78)\]"
+# declare -r __Optional_Fancy::pretty_ps1::prompt_command_colors_calmGreen="\[$(tput setaf 36)\]"
+# declare -r __Optional_Fancy::pretty_ps1::prompt_command_colors_purple="\[$(tput setaf 63)\]"
+# declare -r __Optional_Fancy::pretty_ps1::prompt_command_colors_pink="\[$(tput setaf 169)\]"
+# declare -r __Optional_Fancy::pretty_ps1::prompt_command_colors_defaultTextColor="\[$(tput sgr0)\]"
+# declare -r __Optional_Fancy::pretty_ps1::prompt_command_colors_errorOrange="\[$(tput setaf 202)\]"
 #
 #
 # uncomment the above declare block and run this to get color variables as defined in function
-# declare -r | grep '__Optional_Fancy__pretty_ps1__prompt_command' | sed -e 's/^declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_/local -r /' | ogcopy
+# declare -r | grep '__Optional_Fancy::pretty_ps1::prompt_command' | sed -e 's/^declare -r __Optional_Fancy::pretty_ps1::prompt_command_colors_/local -r /' | ogcopy
 
 # in order to have a conditionally changing PS1. https://stackoverflow.com/a/16715681/15054688
-function __Optional_Fancy__pretty_ps1__prompt_command
+function __Optional_Fancy::pretty_ps1::prompt_command
 {
 	local -r exitCode="${?}"
 	local -r brightGreen=$'\\[\E[38;5;78m\\]'
@@ -86,7 +86,7 @@ function __Optional_Fancy__pretty_ps1__prompt_command
 	return "${exitCode}"
 }
 
-readonly -f __Optional_Fancy__pretty_ps1__prompt_command
+readonly -f __Optional_Fancy::pretty_ps1::prompt_command
 readonly USER HOSTNAME # need in work dir shortening, don't change >:p
 
-PROMPT_COMMAND+=';__Optional_Fancy__pretty_ps1__prompt_command;'
+PROMPT_COMMAND+=';__Optional_Fancy::pretty_ps1::prompt_command;'

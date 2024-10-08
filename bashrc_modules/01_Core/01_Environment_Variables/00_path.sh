@@ -1,5 +1,5 @@
 # I WILL BE IGNORING ANY DEFAULTS, AND JUST USING MY PREFERRED DEFAULTS
-function __Core__Environment_Variables__path__impl
+function __Core::Environment_Variables::path::impl
 {
     local -r IFS=':'
     local -ar target_path_dirs=(
@@ -26,5 +26,5 @@ function __Core__Environment_Variables__path__impl
     PATH="${available_path_dirs[*]}";
 }
 
-__Core__Environment_Variables__path__impl
-unset -f __Core__Environment_Variables__path__impl
+__Core::Environment_Variables::path::impl
+unset -f __Core::Environment_Variables::path::impl

@@ -53,7 +53,7 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
   - must be two digits always, 5 -> 05, 42 -> 42
 - module names must follow the following naming pattern:
   - **`[0-9]{2}_<your module name>.sh`**
-- `<your module name>` must solely be made of **chars within `[a-zA-Z0-9_]`**
+- `<your module name>` must solely be made of **chars within `[a-zA-Z0-9_-]`**
   - *can only have sequences of '_' of size 1 in module name*
     - any longer makes module function naming confusing
   - *can NOT start your module name with '_'*
@@ -79,8 +79,8 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
 
 - Naming rules imposed to avoid collisions and to be able to quickly tell what module is loading what function.
 - Function names must follow the following naming pattern:
-  - **`__<dir core name>__<module core name>__<func name>`**
-  - if function in module is nested under more than one dir level, separate subsequent dirnames with '__' (demonstrated in an example below)
+  - **`function __<dir core name>::<module core name>::<func name>`**
+  - if function in module is nested under more than one dir level, separate subsequent dirnames with '::' (demonstrated in an example below)
   - **dir core name**: `dir name - number ordering`
   - **module core name**: `module name - number ordering - .sh`
   - **func name**: what you would otherwise name the function outside of my enforced naming standards.
@@ -91,9 +91,9 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
     - `<module core name> = do_something`
   - Examples for making function names in modules:
     - naming of a function in dir `03_Mandatory_Last` in module `03_hello_world.sh` whose function name would normally be `life_is_full_of_wonder`
-      - `__Mandatory_Last__hello_world__life_is_full_of_wonder`
+      - `function __Mandatory_Last::hello_world::life_is_full_of_wonder`
     - naming of a function in top level dir `05_Cool`, under dir `02_Custom` in module `09_my_mod.sh` whose function name would normally be `breathe_baby`
-      - `__Cool__Custom__my_mod__breathe_baby`
+      - `function __Cool::Custom::my_mod::breathe_baby`
 - If function is only used within your single module use:
   - `unset -f <name of your function>`
 - If function is long living, and is expected to run outside of your module, consider using (unless you would like to explicitly redefine the function later on):

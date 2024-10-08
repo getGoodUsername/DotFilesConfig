@@ -19,6 +19,8 @@
 #       PROMPT_COMMAND! This will not have an effect on the actual execution
 #       unless you have violated any other of the stated rules.
 #
+#       DOUBLE NOTE, THIS DOESN'T MEAN DO ANY PIPELINING!
+#
 # 3. NO ARGUMENTS ARE FED TO AN EXECUTABLE OR SHELL FUNCTION
 #       EXAMPLE: `echo 'your text'` is NOT ALLOWED
 #
@@ -49,10 +51,13 @@
 # 10. NO VARIABLE DECLARATIONS OR SETTING
 #       No var='g', or declare var;
 #
-# 11. EXECUTABLE/SHELL FUNCTION NAMES ONLY CONTAIN CHARS: [a-zA-Z0-9_]
+# 11. NO PIPELINING
+#       exec | another_exec | exec_3 | ... | exec_n
+#       NOT ALLOWED
+#
+# 12. EXECUTABLE/SHELL FUNCTION NAMES ONLY CONTAIN CHARS: [a-zA-Z0-9_:-]
 #       'hello world' (hello\ world) is not a valid executable name
 #       'my\;weird\&exec' is also not a valid executable name
-#       'not-even-hyphens' is not a valid executable name
 #
 # ********************************* END OF DA RULES *********************************
 #
@@ -83,7 +88,7 @@
 # ************************* DON'T TELL ME I DIDN'T WARN YOU! *************************
 
 
-function __Mandatory_Last__prompt_command_final_clean__main
+function __Mandatory_Last::prompt_command_final_clean::main
 {
     if [ -z "${PROMPT_COMMAND}" ]; then return 0; fi
 
@@ -91,7 +96,7 @@ function __Mandatory_Last__prompt_command_final_clean__main
     # code seen by every command in PROMPT_COMMAND, and by the interactive shell
     # when PROMPT_COMMAND is done running and gives back control to the user.
     # shellcheck disable=SC2016
-    local -r exit_code_propagator_definition='eval "$(printf "function __Mandatory_Last__prompt_command_final_clean__exit_code_propagator { return %d; }" $?)"'
+    local -r exit_code_propagator_definition='eval "$(printf "function __Mandatory_Last::prompt_command_final_clean::exit_code_propagator { return %d; }" $?)"'
 
     # pipeline explained:
     # 1. Replace all consecutive sequences of characters that are NOT part of
@@ -125,12 +130,12 @@ function __Mandatory_Last__prompt_command_final_clean__main
 
     PROMPT_COMMAND="$(
     echo "${exit_code_propagator_definition}"
-    sed -Ez 's/[^a-zA-Z0-9_]+/;\n__Mandatory_Last__prompt_command_final_clean__exit_code_propagator;\n/g' \
+    sed -Ez 's/[^a-zA-Z0-9_:-]+/;\n__Mandatory_Last::prompt_command_final_clean::exit_code_propagator;\n/g' \
         <<< ";${PROMPT_COMMAND};" \
         | tail -n +2 \
     )"
     readonly PROMPT_COMMAND
 }
 
-__Mandatory_Last__prompt_command_final_clean__main
-unset -f __Mandatory_Last__prompt_command_final_clean__main
+__Mandatory_Last::prompt_command_final_clean::main
+unset -f __Mandatory_Last::prompt_command_final_clean::main
