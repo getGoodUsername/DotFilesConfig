@@ -9,7 +9,7 @@
 # because it works fine... but it sure looks ugly! BTW, here is xterm-256-color chart:
 # https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
 
-# This is where I got all the wierd ansi codes from (using tput)
+# This is where I got all the weird ansi codes from (using tput)
 #
 #
 # declare -r __Optional_Fancy__pretty_ps1__prompt_command_colors_orange="\[$(tput setaf 215)\]"
@@ -36,6 +36,40 @@ function __Optional_Fancy__pretty_ps1__prompt_command
 	local -r pink=$'\\[\E[38;5;169m\\]'
 	local -r purple=$'\\[\E[38;5;63m\\]'
 
+	# ************************** working directory (\w) presentation shortening **************************
+	local -r currWorkDir="${PWD/#${HOME}/\~}";
+	local -r currWorkDirPrefixPS1="${USER}@${HOSTNAME} "; # don't forget to update when \w prefix in PS1 changes
+	local -ri maxCurrWorkDirLength=$(( COLUMNS - ${#currWorkDirPrefixPS1} ));
+
+	if [[ "${maxCurrWorkDirLength}" -lt "${#currWorkDir}" && "${maxCurrWorkDirLength}" -gt 0 ]]; then
+	{
+		# - 4 since after bash dir trim, dirs get replaced with '.../'
+		local -ri maxCurrWorkDirLengthPostDirTrim=$(( maxCurrWorkDirLength - 4 ));
+		local -r onlyForwardSlashWorkDir=${currWorkDir//[^\/]};
+		local -ri dirCount=${#onlyForwardSlashWorkDir}; # can be 0 if $PWD -eq $HOME and therefore currWorkDir='~'
+		local -i charsRemovedFromWorkDir=0;
+
+		PROMPT_DIRTRIM=${dirCount};
+		while [[ \
+			"${PROMPT_DIRTRIM}" -gt 0 \
+			&& $(( ${#currWorkDir} - charsRemovedFromWorkDir )) -gt ${maxCurrWorkDirLengthPostDirTrim} \
+		]] && read -r -d '/' dir; do
+		{
+			# + 1 to account for not displayed '/' deliminator
+			charsRemovedFromWorkDir=$(( charsRemovedFromWorkDir + 1 + ${#dir} ))
+			PROMPT_DIRTRIM=$(( PROMPT_DIRTRIM - 1 ))
+		}
+		done <<< "${currWorkDir/*(\~)\//}/"
+		# remove first '/' (along with maybe a ~) from currWorkDir so `read -d '/'` first input is not empty
+		# add '/' to end so `read -d '/'` last input is last dir, not second to last dir
+
+		# NOTE, when PROMPT_DIRTRIM=0, bash seems to ignore. good! don't have to handle that case!
+	}
+	else
+		# default to show full dirs in '\w'
+		PROMPT_DIRTRIM=0;
+	fi
+	# ************************** END OF working directory (\w) presentation shortening **************************
 
 	PS1="${orange}\u${brightGreen}@${purple}\h ${pink}\w"
 	PS1+="${calmGreen}" # will make ❯ green by default
@@ -48,9 +82,11 @@ function __Optional_Fancy__pretty_ps1__prompt_command
 	fi
 
 	PS1+="\n❯${defaultTextColor} "
+
 	return "${exitCode}"
 }
 
 readonly -f __Optional_Fancy__pretty_ps1__prompt_command
+readonly USER HOSTNAME # need in work dir shortening, don't change >:p
 
 PROMPT_COMMAND+=';__Optional_Fancy__pretty_ps1__prompt_command;'
