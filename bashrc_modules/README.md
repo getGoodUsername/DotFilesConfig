@@ -117,8 +117,6 @@ PROMPT_COMMAND=";function_to_run;something_else_also;${PROMPT_COMMAND}"
 
 ### Load All Modules
 
-- intended to be possibly added to your .bashrc
-
 ```bash
 source <(
     find -H "${HOME}/bashrc_modules" -type f -name '[^.]*.sh' \
@@ -128,8 +126,6 @@ source <(
 ```
 
 ### Load All With Notification If Error
-
-- intended to be possibly added to your .bashrc
 
 ```bash
 source <(
@@ -141,7 +137,6 @@ source <(
 
 ### Load All Except Blacklist (With Error Notification)
 
-- intended to be possibly added to your .bashrc
 - process all path names through `realpath` to ensure every path string is the same
   - `./<path>` and `<path>` are equivalent but uniq won't see it as so!
 
@@ -156,40 +151,18 @@ source <(
 )
 ```
 
-- in `"${HOME}/.bashrc_blacklist_modules.txt"` put **absolute full path** (ok if path contains symbolic link) to module you want to blacklist
-  - separate every blacklisted module with a new line
-  - Common modules to blacklist:
-
-```text
-.../02_Optional_Fancy/01_cht_sh_autocomplete.sh
-.../02_Optional_Fancy/03_nvm_setup.sh
-.../02_Optional_Fancy/05_ripgrep_autocomplete.sh
-.../02_Optional_Fancy/07_zoxide_replace_cd_and_setup.sh
-```
-
-### Make A Blacklist File (Interactive)
-
-- intended to be ran as a standalone script
+### Make Blacklist File (Interactive)
 
 - send EOF (usually ctrl + d) to stop!
 
 ```bash
-blacklist_file="${HOME}/.bashrc_blacklist_modules.txt";
-select module in $(find -H "${HOME}/bashrc_modules" -type f -name '[^.]*.sh' | xargs realpath -s | sort); do
-    printf '%s\n' "$module" >> "${blacklist_file}";
-    echo "${module} added to blacklist!";
+select blacklist_fname in $(find -H "${HOME}/bashrc_modules" -name '[^.]*.sh' | xargs realpath -s | sort); do
+    printf '%s\n' "$blacklist_fname" >> "${HOME}/.bashrc_blacklist_modules.txt";
+    echo "${blacklist_fname} added to blacklist!";
 done
-
-sort "${blacklist_file}" \
-  | uniq -u \
-  | sponge "${blacklist_file}";
-less "${blacklist_file}";
 ```
 
 ### Load Some
-
-- intended to be possibly added to your .bashrc
-- I often use the blacklist script more, easier to make fine grain decisions
 
 ```bash
 source <(
@@ -204,17 +177,14 @@ source <(
 
 ### Profile `.bashrc` Time
 
-- intended to be ran as a standalone script
 - `-i` ensures that shell is treated as interactive
-  - sometimes, `.bashrc` will include a section to avoid running all the extra setup if not interactive, therefore in order to make sure our whole rc file gets tested add `-i`
+  - sometimes, .bashrc will include a section to avoid running all the extra setup if not interactive, therefore in order to make sure our whole rc file gets tested add `-i`
 
 ```bash
 hyperfine --shell=none "bash --rcfile ${HOME}/.bashrc -ci ''"
 ```
 
 ### Profile Module Time (macro)
-
-- intended to be ran as a standalone script
 
 ```bash
 function profile_macro
@@ -238,8 +208,6 @@ profile_macro
 ```
 
 ### Profile Module Time (micro)
-
-- intended to be ran as a standalone script
 
 ```bash
 function profile_micro
