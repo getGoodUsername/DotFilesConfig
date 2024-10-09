@@ -272,3 +272,5 @@ function profile_micro
 
 profile_micro
 ```
+
+### #TODO, cache module files to ram permanently for quicker access
