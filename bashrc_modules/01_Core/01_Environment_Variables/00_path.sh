@@ -26,5 +26,9 @@ function __Core::Environment_Variables::path::impl
     PATH="${available_path_dirs[*]}";
 }
 
+# NOTE, often .profice or /etc/profile or .bash_login files may exist that further
+# modify the PATH env var. If you don't want those modifications you must directly
+# remove that configuration from those 'login' files.
+
 __Core::Environment_Variables::path::impl
 unset -f __Core::Environment_Variables::path::impl
