@@ -81,7 +81,13 @@ function __Optional_Fancy::pretty_ps1::prompt_command
 		PS1+=" ${errorOrange}<${exitCode}>"
 	fi
 
-	PS1+="\n❯${defaultTextColor} "
+	# $VIRTUAL_ENV_PROMPT is an env var set when setting up a python
+	# virtual env. It usually is just: '(venv) '
+	# usually when setting up the virt env, python will change the PS1
+	# but since using PROMPT_COMMANMD, this doesn't change anything.
+
+	# shellcheck disable=SC2154
+	PS1+="\n${VIRTUAL_ENV_PROMPT}❯${defaultTextColor} "
 
 	return "${exitCode}"
 }
