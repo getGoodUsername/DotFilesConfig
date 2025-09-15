@@ -93,6 +93,5 @@ function __Optional_Fancy::pretty_ps1::prompt_command
 }
 
 readonly -f __Optional_Fancy::pretty_ps1::prompt_command
-readonly USER HOSTNAME # need in work dir shortening, don't change >:p
 
 PROMPT_COMMAND+=';__Optional_Fancy::pretty_ps1::prompt_command;'
