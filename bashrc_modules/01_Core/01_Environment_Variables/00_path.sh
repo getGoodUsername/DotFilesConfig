@@ -6,6 +6,7 @@ function __Core::Environment_Variables::path::impl
         "${HOME}"/bin
         "${HOME}"/.cargo/bin
         "${HOME}"/go/bin
+		"${HOME}"/.bun/bin
         /bin
         /usr/bin
         /usr/local/bin
