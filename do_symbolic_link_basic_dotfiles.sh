@@ -1,4 +1,4 @@
 #!/usr/bin/bash
 
-ln -s -t ~ "$(pwd)"/.!(git|gitignore)
+ln -s -t ~ "$(pwd)"/.!(git|gitignore|vscode)
 
